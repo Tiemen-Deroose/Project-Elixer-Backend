@@ -1,9 +1,10 @@
 {
   "scripts": {
-		"start": "nodemon src/index.js"
-	},
+    "start": "nodemon src/index.js"
+  },
   "dependencies": {
-    "koa": "^2.13.4"
+    "koa": "^2.13.4",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
