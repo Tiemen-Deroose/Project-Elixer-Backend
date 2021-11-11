@@ -1,8 +1,10 @@
 const Koa = require('koa');
 const app = new Koa();
 
+const MOCK_DATA = require('./data/mock-data');
+
 app.use(async (ctx, next) => {
-    ctx.body = "Test response";
+    ctx.body = MOCK_DATA;
     console.log("Request: " + ctx.URL);
     console.log("Message: " + ctx.body);
     await next();
