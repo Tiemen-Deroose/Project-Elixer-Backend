@@ -5,6 +5,7 @@ const ART_DATA = [
         material: 'canvas',
         medium: 'resin',
         size: 'large',
+        image_url: 'http://localhost:9000/api/art/images/sunlight.jpg',
         price: 209.99
 	},
     {
@@ -13,6 +14,7 @@ const ART_DATA = [
         material: 'paper',
         medium: 'acrylic paint',
         size: 'medium',
+        image_url: 'http://localhost:9000/api/art/images/autumn_tree.jpg',
         price: 59.99
     }
 ];
@@ -20,10 +22,11 @@ const ART_DATA = [
 const JEWELRY_DATA = [
     { 
         id: 'ee402224-b772-4536-a378-40268b46562e',
-        name: 'Gold tinted steel necklace',
-        category: 'necklace',
+        name: 'Colour Changing Pendant',
+        category: 'pendant',
         material: 'steel',
-        colour: 'gold',
+        colour: 'silver',
+        image_url: 'http://localhost:9000/api/jewelry/images/colour_changing_pendant.jpg',
         price: 49.99
     },
     { 
@@ -32,6 +35,7 @@ const JEWELRY_DATA = [
         category: 'bracelet',
         material: 'sterling silver',
         colour: 'silver',
+        image_url: 'http://localhost:9000/api/jewelry/images/skeletonized_petals_bracelet.jpg',
         price: 39.99
     }
 ];

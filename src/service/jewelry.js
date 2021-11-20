@@ -2,8 +2,8 @@ const logger = require('../core/logging');
 const uuid = require('uuid');
 let { JEWELRY_DATA } = require('../data/mock-data');
 
-const checkAttributes = (action, name, category, material, colour, price) => {
-	const stringAttributes = [name, category, material, colour];
+const checkAttributes = (action, name, category, material, colour, image_url, price) => {
+	const stringAttributes = [name, category, material, colour, image_url];
 	let isCorrect = true;
 
 	stringAttributes.forEach(attribute => {
@@ -31,19 +31,18 @@ const findJewelryById = (action, id) => {
 		logger.error({ message: `Could not ${action} jewelry: jewelry with id '${id}' does not exist`});
 	
 	return foundJewelry;
-}
+};
 
 const getAll = () => {
 	return { data: JEWELRY_DATA, count: JEWELRY_DATA.length };
 };
-
 const getById = (id) => {  
     const requestedJewelry = findJewelryById("update", id);
 
 	return requestedJewelry ?? null; // if requested jewelry wasn't found, return null instead
 };
-const create = ({name, category, material, colour, price}) => {
-	if (!checkAttributes("create", name, category, material, colour, price))
+const create = ({name, category, material, colour, image_url, price}) => {
+	if (!checkAttributes("create", name, category, material, colour, image_url, price))
 		return null;
 
 	const createdJewelry = {
@@ -52,14 +51,15 @@ const create = ({name, category, material, colour, price}) => {
 		category,
 		material,
 		colour,
+		image_url,
 		price,
 	};
 
 	JEWELRY_DATA.push(createdJewelry);
 	return createdJewelry;
 };
-const updateById = (id, {name, category, material, colour, price}) => {
-	if (!checkAttributes("update", name, category, material, colour, price))
+const updateById = (id, {name, category, material, colour, image_url, price}) => {
+	if (!checkAttributes("update", name, category, material, colour, image_url, price))
 		return null;
 
 	updatedJewelry = findJewelryById("update", id);
@@ -69,6 +69,7 @@ const updateById = (id, {name, category, material, colour, price}) => {
 		updatedJewelry.category = category;
 		updatedJewelry.material = material;
 		updatedJewelry.colour = colour;
+		updatedJewelry.image_url = image_url;
 		updatedJewelry.price = price;
 	}
 

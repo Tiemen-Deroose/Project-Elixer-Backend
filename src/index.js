@@ -2,6 +2,8 @@ const Koa = require('koa');
 const koaCors = require('@koa/cors');
 const bodyParser = require('koa-bodyparser');
 const Router = require('@koa/router');
+const mime = require('mime-types');
+const fs = require('fs');
 const logger = require('./core/logging');
 const config = require('config');
 
@@ -90,6 +92,27 @@ router.delete('/api/jewelry/:id', async (ctx) => {
     
     const response = jewelryService.deleteById(ctx.params.id);
     ctx.body = response;
+});
+
+router.get('/api/art/images/:image', async (ctx) => {
+    logger.info(`GET Request:`, { message: ctx.URL });
+    
+    var path = `./images/art/${ctx.params.image}`;
+    var mimeType = mime.lookup(path);
+    const src = fs.createReadStream(path);
+
+    ctx.response.set("content-type", mimeType);
+    ctx.body = src;
+});
+router.get('/api/jewelry/images/:image', async (ctx) => {
+    logger.info(`GET Request:`, { message: ctx.URL });
+    
+    var path = `./images/jewelry/${ctx.params.image}`;
+    var mimeType = mime.lookup(path);
+    const src = fs.createReadStream(path);
+
+    ctx.response.set("content-type", mimeType);
+    ctx.body = src;
 });
 
 app.listen(9000);
