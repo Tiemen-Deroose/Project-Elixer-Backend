@@ -1,5 +1,6 @@
-let { ART_DATA } = require('../data/mock-data');
+const logger = require('../core/logging');
 const uuid = require('uuid');
+let { ART_DATA } = require('../data/mock-data');
 
 const checkAttributes = (action, title, material, medium, size, price) => {
 	const stringAttributes = [title, material, medium, size];
@@ -7,14 +8,14 @@ const checkAttributes = (action, title, material, medium, size, price) => {
 
 	stringAttributes.forEach(attribute => {
 		if (typeof attribute !== 'string') {
-			console.log(`Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}'`); // TODO: implement winston logger here
+			logger.error({ message: `Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}'`}); // TODO: implement winston logger here
 			isCorrect = false;
 		};
 	});
 
 	if (typeof price !== 'number')
 	{
-		console.log(`Could not ${action} art: attribute 'price' must be a number`); // TODO: implement winston logger here
+		logger.error({ message: `Could not ${action} art: attribute 'price' must be a number`}); // TODO: implement winston logger here
 		isCorrect = false;
 	};
 
@@ -27,7 +28,7 @@ const findArtById = (action, id) => {
 	);
 
 	if (!foundArt)
-		console.log(`Could not ${action} art: art with id '${id}' does not exist`); // TODO: implement winston logger here
+		logger.error({ message: `Could not ${action} art: art with id '${id}' does not exist`}); // TODO: implement winston logger here
 	
 	return foundArt;
 }
@@ -53,7 +54,7 @@ const create = ({title, material, medium, size, price}) => {
 		size,
 		price,
 	};
-	
+
 	ART_DATA.push(createdArt);
 	return createdArt;
 };

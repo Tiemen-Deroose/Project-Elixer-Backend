@@ -1,12 +1,23 @@
-const winston = require('winston');
+const { createLogger, transports } = require('winston');
+const { format } = require('logform');
+const { combine, timestamp, colorize, printf } = format;
 const config = require('config');
 const LOGGER_SILENT = config.get('logger.silent');
 
-const logger = winston.createLogger({
+const printfFormat = printf(({ level, message, timestamp }) => {
+    return `[${timestamp}] ${level}: ${message}`;
+  });
+
+const logger = createLogger({
+    format: combine(
+        colorize(),
+        timestamp(),
+        printfFormat,
+    ),
     silent: LOGGER_SILENT,
     transports: [
-      new winston.transports.Console(),
-      new winston.transports.File({ filename: 'combined.log' })
+      new transports.Console(),
+      new transports.File({ filename: 'combined.log' })
     ]
 });
 

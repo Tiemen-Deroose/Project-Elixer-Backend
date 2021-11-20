@@ -1,5 +1,6 @@
-let { JEWELRY_DATA } = require('../data/mock-data');
+const logger = require('../core/logging');
 const uuid = require('uuid');
+let { JEWELRY_DATA } = require('../data/mock-data');
 
 const checkAttributes = (action, name, category, material, colour, price) => {
 	const stringAttributes = [name, category, material, colour];
@@ -7,14 +8,14 @@ const checkAttributes = (action, name, category, material, colour, price) => {
 
 	stringAttributes.forEach(attribute => {
 		if (typeof attribute !== 'string' || !attribute) {
-			console.log(`Could not ${action} jewelry: expected string, but got ${typeof attribute} '${attribute}'`); // TODO: implement winston logger here
+			logger.error({ message: `Could not ${action} jewelry: expected string, but got ${typeof attribute} '${attribute}'`});
 			isCorrect = false;
 		};
 	});
 
 	if (typeof price !== 'number')
 	{
-		console.log(`Could not ${action} jewelry: attribute 'price' must be a number`); // TODO: implement winston logger here
+		logger.error({ message: `Could not ${action} jewelry: attribute 'price' must be a number` });
 		isCorrect = false;
 	};
 
@@ -27,7 +28,7 @@ const findJewelryById = (action, id) => {
 	);
 
 	if (!foundJewelry)
-		console.log(`Could not ${action} jewelry: jewelry with id '${id}' does not exist`); // TODO: implement winston logger here
+		logger.error({ message: `Could not ${action} jewelry: jewelry with id '${id}' does not exist`});
 	
 	return foundJewelry;
 }
