@@ -2,11 +2,10 @@ const Koa = require('koa');
 const koaCors = require('@koa/cors');
 const bodyParser = require('koa-bodyparser');
 const Router = require('@koa/router');
-const winston = require('winston');
+const logger = require('./core/logging');
 const config = require('config');
 
 const NODE_ENV = config.get('env');
-const LOGGER_SILENT = config.get('logger.silent');
 const CORS_ORIGINS = config.get('cors.origins');
 const CORS_MAX_AGE = config.get('cors.maxAge');
 
@@ -26,14 +25,6 @@ app.use(
 		maxAge: CORS_MAX_AGE,
 	})
 );
-
-const logger = winston.createLogger({
-    silent: LOGGER_SILENT,
-    transports: [
-      new winston.transports.Console(),
-      new winston.transports.File({ filename: 'combined.log' })
-    ]
-});
 
 const router = new Router();
 app.use(router.routes()).use(router.allowedMethods());
