@@ -1,52 +1,47 @@
 const logger = require('../core/logging');
 const uuid = require('uuid');
-let { JEWELRY_DATA } = require('../data/mock-data');
 
-const checkAttributes = (action, name, category, material, colour, image_url, price) => {
+const database = require('../data');
+const collections = database.collections;
+
+function checkAttributes(action, name, category, material, colour, image_url, price) {
 	const stringAttributes = [name, category, material, colour, image_url];
 	let isCorrect = true;
 
+	var counter = 0;
 	stringAttributes.forEach(attribute => {
+		counter++;
 		if (typeof attribute !== 'string' || !attribute) {
-			logger.error({ message: `Could not ${action} jewelry: expected string, but got ${typeof attribute} '${attribute}'`});
+			logger.error({ message: `Could not ${action} jewelry: expected string, but got ${typeof attribute} '${attribute}' on property number ${counter}`});
 			isCorrect = false;
 		};
 	});
 
 	if (typeof price !== 'number')
 	{
-		logger.error({ message: `Could not ${action} jewelry: attribute 'price' must be a number` });
+		logger.error({ message: `Could not ${action} jewelry: attribute 'price' must be a number`});
 		isCorrect = false;
 	};
 
 	return isCorrect;
 };
 
-const findJewelryById = (action, id) => {
-	const foundJewelry = JEWELRY_DATA.find(jewelry => 
-		jewelry.id === id
-	);
+async function getAll() {
+	const response = await database.getAll(collections.jewelry);
 
-	if (!foundJewelry)
-		logger.error({ message: `Could not ${action} jewelry: jewelry with id '${id}' does not exist`});
-	
-	return foundJewelry;
+	return { data: response, count: response.length };
 };
-
-const getAll = () => {
-	return { data: JEWELRY_DATA, count: JEWELRY_DATA.length };
-};
-const getById = (id) => {  
-    const requestedJewelry = findJewelryById("update", id);
+async function getById(id) {  
+    const requestedJewelry = database.getById(collections.jewelry, id);
 
 	return requestedJewelry ?? null; // if requested jewelry wasn't found, return null instead
 };
-const create = ({name, category, material, colour, image_url, price}) => {
+async function create({name, category, material, colour, image_url, price}) {
 	if (!checkAttributes("create", name, category, material, colour, image_url, price))
 		return null;
 
 	const createdJewelry = {
-		id: uuid.v4(),
+		_id: uuid.v4(),
 		name: name,
 		category,
 		material,
@@ -55,31 +50,19 @@ const create = ({name, category, material, colour, image_url, price}) => {
 		price,
 	};
 
-	JEWELRY_DATA.push(createdJewelry);
+	database.create(collections.jewelry, createdJewelry);
 	return createdJewelry;
 };
-const updateById = (id, {name, category, material, colour, image_url, price}) => {
+async function updateById(id, {name, category, material, colour, image_url, price}) {
 	if (!checkAttributes("update", name, category, material, colour, image_url, price))
 		return null;
 
-	updatedJewelry = findJewelryById("update", id);
-
-	if (updatedJewelry) {
-		updatedJewelry.name = name;
-		updatedJewelry.category = category;
-		updatedJewelry.material = material;
-		updatedJewelry.colour = colour;
-		updatedJewelry.image_url = image_url;
-		updatedJewelry.price = price;
-	}
+	updatedJewelry = database.updateById(collections.jewelry, id, {name, category, material, colour, image_url, price});
 
 	return updatedJewelry ?? null; // if requested jewelry wasn't found, return null instead
 };
-const deleteById = (id) => {
-	const jewelryToDelete = findJewelryById("delete", id);
-
-	if (jewelryToDelete)
-		JEWELRY_DATA.splice(JEWELRY_DATA.indexOf(jewelryToDelete), 1);
+async function deleteById(id) {
+	const jewelryToDelete = database.deleteById(collections.jewelry, id);
 
 	return jewelryToDelete ?? null; // if requested jewelry wasn't found, return null instead
 };

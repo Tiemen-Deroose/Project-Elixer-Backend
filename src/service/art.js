@@ -1,14 +1,18 @@
 const logger = require('../core/logging');
 const uuid = require('uuid');
-let { ART_DATA } = require('../data/mock-data');
 
-const checkAttributes = (action, title, material, medium, size, image_url, price) => {
+const database = require('../data');
+const collections = database.collections;
+
+function checkAttributes(action, title, material, medium, size, image_url, price) {
 	const stringAttributes = [title, material, medium, size, image_url];
 	let isCorrect = true;
 
+	var counter = 0;
 	stringAttributes.forEach(attribute => {
+		counter++;
 		if (typeof attribute !== 'string') {
-			logger.error({ message: `Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}'`});
+			logger.error({ message: `Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}' on property number ${counter}`});
 			isCorrect = false;
 		};
 	});
@@ -22,31 +26,22 @@ const checkAttributes = (action, title, material, medium, size, image_url, price
 	return isCorrect;
 };
 
-const findArtById = (action, id) => {
-	const foundArt = ART_DATA.find(art => 
-		art.id === id
-	);
+async function getAll() {
+	const response = await database.getAll(collections.art);
 
-	if (!foundArt)
-		logger.error({ message: `Could not ${action} art: art with id '${id}' does not exist`});
-	
-	return foundArt;
+	return { data: response, count: response.length };
 };
-
-const getAll = () => {
-	return { data: ART_DATA, count: ART_DATA.length };
-};
-const getById = (id) => {  
-    const requestedArt = findArtById("update", id);
+async function getById(id) {  
+    const requestedArt = database.getById(collections.art, id);
 
 	return requestedArt ?? null; // if requested art wasn't found, return null instead
 };
-const create = ({title, material, medium, size, image_url, price}) => {
+async function create({title, material, medium, size, image_url, price}) {
 	if (!checkAttributes("create", title, material, medium, size, image_url, price))
 		return null;
 
 	const createdArt = {
-		id: uuid.v4(),
+		_id: uuid.v4(),
 		title,
 		material,
 		medium,
@@ -55,31 +50,19 @@ const create = ({title, material, medium, size, image_url, price}) => {
 		price,
 	};
 
-	ART_DATA.push(createdArt);
+	database.create(collections.art, createdArt);
 	return createdArt;
 };
-const updateById = (id, {title, material, medium, size, image_url, price}) => {
+async function updateById (id, {title, material, medium, size, image_url, price}) {
 	if (!checkAttributes("update", title, material, medium, size, image_url, price))
 		return null;
 
-	updatedArt = findArtById("update", id);
-
-	if (requestedArt) {
-		updatedArt.title = title;
-		updatedArt.material = material;
-		updatedArt.medium = medium;
-		updatedArt.size = size;
-		updatedArt.image_url = image_url;
-		updatedArt.price = price;
-	}
+	updatedArt = database.updateById(collections.art, id, {title, material, medium, size, image_url, price});
 
 	return updatedArt ?? null; // if requested art wasn't found, return null instead
 };
 const deleteById = (id) => {
-	const artToDelete = findJewelryById("delete", id);
-
-	if (artToDelete)
-		ART_DATA.splice(ART_DATA.indexOf(artToDelete), 1);
+	const artToDelete = database.deleteById(collections.art, id);
 
 	return artToDelete ?? null; // if requested art wasn't found, return null instead
 };

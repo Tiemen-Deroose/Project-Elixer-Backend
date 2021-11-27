@@ -1,6 +1,6 @@
 const ART_DATA = [
 	{
-        id: 'f064a797-99fa-4ec0-9454-ba14838f5df4',
+        _id: 'f064a797-99fa-4ec0-9454-ba14838f5df4',
         title: 'Sunlight',
         material: 'canvas',
         medium: 'resin',
@@ -9,9 +9,9 @@ const ART_DATA = [
         price: 209.99
 	},
     {
-        id: '9ee5fb36-1ff5-4588-b888-fade80b88d05',
+        _id: '9ee5fb36-1ff5-4588-b888-fade80b88d05',
         title: 'Autumn Tree',
-        material: 'paper',
+        material: 'canvas',
         medium: 'acrylic paint',
         size: 'medium',
         image_url: 'http://localhost:9000/api/art/images/autumn_tree.jpg',
@@ -21,7 +21,7 @@ const ART_DATA = [
   
 const JEWELRY_DATA = [
     { 
-        id: 'ee402224-b772-4536-a378-40268b46562e',
+        _id: 'ee402224-b772-4536-a378-40268b46562e',
         name: 'Colour Changing Pendant',
         category: 'pendant',
         material: 'steel',
@@ -30,8 +30,8 @@ const JEWELRY_DATA = [
         price: 49.99
     },
     { 
-        id: '111b85dc-e7e4-473a-9952-06183f5f97cc',
-        name: 'Skeletonized petals bracelet',
+        _id: '111b85dc-e7e4-473a-9952-06183f5f97cc',
+        name: 'Skeletonized Petals bracelet',
         category: 'bracelet',
         material: 'sterling silver',
         colour: 'silver',
