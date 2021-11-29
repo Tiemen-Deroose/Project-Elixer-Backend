@@ -14,106 +14,106 @@ const jewelrySeed = require('./seeds/202111271530_jewelry');
 
 async function initializeDatabase() {
 
-    logger.info('Connecting to the database...');
+  logger.info('Connecting to the database...');
 
-    // Check connection, also creates the database
-    mongoClient.connect(DATABASE_URL, function (err, client) {
-        if (err) {
-            logger.error(`Could not connect to the database: ${err}`);
-            throw err;
-        }
+  // Check connection, also creates the database
+  mongoClient.connect(DATABASE_URL, function (err, client) {
+    if (err) {
+      logger.error(`Could not connect to the database: ${err}`);
+      throw err;
+    }
         
-        client.close();
-    });
+    client.close();
+  });
     
 
-    // Seed the database if we are in development
-    if (isDevelopment) {
-        try {
-            await artSeed.seed();
-            await jewelrySeed.seed();
-        } catch (err) {
-            logger.error(`Error while seeding the database: ${err}`);
-            throw err;
-        }
+  // Seed the database if we are in development
+  if (isDevelopment) {
+    try {
+      await artSeed.seed();
+      await jewelrySeed.seed();
+    } catch (err) {
+      logger.error(`Error while seeding the database: ${err}`);
+      throw err;
     }
+  }
 }
 
 async function getAll(collectionName) {
 
-    const client = await mongoClient.connect(DATABASE_URL);
-    const database = client.db(DATABASE_NAME);
+  const client = await mongoClient.connect(DATABASE_URL);
+  const database = client.db(DATABASE_NAME);
 
-    const foundCollection = await database.collection(collectionName).find().toArray();
+  const foundCollection = await database.collection(collectionName).find().toArray();
 
-    client.close();
-    return foundCollection;
-};
+  client.close();
+  return foundCollection;
+}
 
 async function getById(collectionName, id) {
 
-    const client = await mongoClient.connect(DATABASE_URL);
-    const database = client.db(DATABASE_NAME);
+  const client = await mongoClient.connect(DATABASE_URL);
+  const database = client.db(DATABASE_NAME);
 
-    const query = { _id: id };
-    const foundObject = await database.collection(collectionName).find(query).toArray();
+  const query = { _id: id };
+  const foundObject = await database.collection(collectionName).find(query).toArray();
 
-    client.close();
-    return foundObject[0];
-};
+  client.close();
+  return foundObject[0];
+}
 
 async function updateById(collectionName, id, object) {
 
-    const client = await mongoClient.connect(DATABASE_URL);
-    const database = client.db(DATABASE_NAME);
+  const client = await mongoClient.connect(DATABASE_URL);
+  const database = client.db(DATABASE_NAME);
 
-    const query = { _id: id };
-    const newValues = { $set: object };
+  const query = { _id: id };
+  const newValues = { $set: object };
 
-    await database.collection(collectionName).updateOne(query, newValues);
-    const newObject = await database.collection(collectionName).find(query).toArray();
+  await database.collection(collectionName).updateOne(query, newValues);
+  const newObject = await database.collection(collectionName).find(query).toArray();
 
-    client.close();
-    return newObject[0];
-};
+  client.close();
+  return newObject[0];
+}
 
 async function deleteById(collectionName, id) {
 
-    const client = await mongoClient.connect(DATABASE_URL);
-    const database = client.db(DATABASE_NAME);
+  const client = await mongoClient.connect(DATABASE_URL);
+  const database = client.db(DATABASE_NAME);
 
-    const query = { _id: id };
+  const query = { _id: id };
 
-    const deletedObject = await database.collection(collectionName).find(query).toArray();
-    await database.collection(collectionName).deleteOne(query);
+  const deletedObject = await database.collection(collectionName).find(query).toArray();
+  await database.collection(collectionName).deleteOne(query);
 
-    client.close();
-    return deletedObject[0];
-};
+  client.close();
+  return deletedObject[0];
+}
 
 async function create(collectionName, object) {
 
-    const client = await mongoClient.connect(DATABASE_URL);
-    const database = client.db(DATABASE_NAME);
+  const client = await mongoClient.connect(DATABASE_URL);
+  const database = client.db(DATABASE_NAME);
 
-    await database.collection(collectionName).insertOne(object);
+  await database.collection(collectionName).insertOne(object);
 
-    client.close();
-};
+  client.close();
+}
 
 const collections = Object.freeze(
-    {
-        art: 'art',
-        jewelry: 'jewelry',
-    }
+  {
+    art: 'art',
+    jewelry: 'jewelry',
+  },
 );
 
 module.exports = {
-    collections,
-    initializeDatabase,
-    getAll,
-    getById,
-    updateById,
-    deleteById,
-    create,
+  collections,
+  initializeDatabase,
+  getAll,
+  getById,
+  updateById,
+  deleteById,
+  create,
 };
