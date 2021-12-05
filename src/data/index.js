@@ -1,7 +1,8 @@
 const config = require('config');
 const mongoClient = require('mongodb').MongoClient;
 
-const logger = require('../core/logging');
+const { getChildLogger } = require('../core/logging');
+let logger;
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
@@ -13,8 +14,8 @@ const artSeed = require('./seeds/202111271520_art');
 const jewelrySeed = require('./seeds/202111271530_jewelry');
 
 async function initializeDatabase() {
-
-  logger.info('Connecting to the database...');
+  logger = getChildLogger('database');
+  logger.info('Testing connection to the database');
 
   // Check connection, also creates the database
   mongoClient.connect(DATABASE_URL, function (err, client) {
@@ -22,10 +23,10 @@ async function initializeDatabase() {
       logger.error(`Could not connect to the database: ${err}`);
       throw err;
     }
-        
+
     client.close();
   });
-    
+
 
   // Seed the database if we are in development
   if (isDevelopment) {
@@ -37,6 +38,8 @@ async function initializeDatabase() {
       throw err;
     }
   }
+
+  logger.info('Succesfully connected to the database');
 }
 
 async function getAll(collectionName) {
@@ -55,7 +58,9 @@ async function getById(collectionName, id) {
   const client = await mongoClient.connect(DATABASE_URL);
   const database = client.db(DATABASE_NAME);
 
-  const query = { _id: id };
+  const query = {
+    _id: id,
+  };
   const foundObject = await database.collection(collectionName).find(query).toArray();
 
   client.close();
@@ -67,8 +72,12 @@ async function updateById(collectionName, id, object) {
   const client = await mongoClient.connect(DATABASE_URL);
   const database = client.db(DATABASE_NAME);
 
-  const query = { _id: id };
-  const newValues = { $set: object };
+  const query = {
+    _id: id,
+  };
+  const newValues = {
+    $set: object,
+  };
 
   await database.collection(collectionName).updateOne(query, newValues);
   const newObject = await database.collection(collectionName).find(query).toArray();
@@ -82,7 +91,9 @@ async function deleteById(collectionName, id) {
   const client = await mongoClient.connect(DATABASE_URL);
   const database = client.db(DATABASE_NAME);
 
-  const query = { _id: id };
+  const query = {
+    _id: id,
+  };
 
   const deletedObject = await database.collection(collectionName).find(query).toArray();
   await database.collection(collectionName).deleteOne(query);
@@ -101,12 +112,10 @@ async function create(collectionName, object) {
   client.close();
 }
 
-const collections = Object.freeze(
-  {
-    art: 'art',
-    jewelry: 'jewelry',
-  },
-);
+const collections = Object.freeze({
+  art: 'art',
+  jewelry: 'jewelry',
+} );
 
 module.exports = {
   collections,

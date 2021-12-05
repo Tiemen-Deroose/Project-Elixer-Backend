@@ -1,8 +1,10 @@
-const logger = require('../core/logging');
 const uuid = require('uuid');
 
 const database = require('../data');
 const collections = database.collections;
+
+const { getChildLogger } = require('../core/logging');
+const logger = getChildLogger('art-service');
 
 function checkAttributes(action, name, category, material, colour, image_url, price) {
   const stringAttributes = [name, category, material, colour, image_url];
