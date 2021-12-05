@@ -44,10 +44,17 @@ async function initializeDatabase() {
   logger.info('Succesfully connected to the database');
 }
 
-async function getAll(collectionName) {
+async function connect() {
 
   const client = await mongoClient.connect(DATABASE_URL);
   const database = client.db(DATABASE_NAME);
+
+  return {client, database};
+}
+
+async function getAll(collectionName) {
+
+  const {client, database} = await connect();
 
   const foundCollection = await database.collection(collectionName).find().toArray();
 
@@ -57,8 +64,7 @@ async function getAll(collectionName) {
 
 async function getById(collectionName, id) {
 
-  const client = await mongoClient.connect(DATABASE_URL);
-  const database = client.db(DATABASE_NAME);
+  const {client, database} = await connect();
 
   const query = {
     _id: id,
@@ -71,8 +77,7 @@ async function getById(collectionName, id) {
 
 async function updateById(collectionName, id, object) {
 
-  const client = await mongoClient.connect(DATABASE_URL);
-  const database = client.db(DATABASE_NAME);
+  const {client, database} = await connect();
 
   const query = {
     _id: id,
@@ -90,8 +95,7 @@ async function updateById(collectionName, id, object) {
 
 async function deleteById(collectionName, id) {
 
-  const client = await mongoClient.connect(DATABASE_URL);
-  const database = client.db(DATABASE_NAME);
+  const {client, database} = await connect();
 
   const query = {
     _id: id,
@@ -106,8 +110,7 @@ async function deleteById(collectionName, id) {
 
 async function create(collectionName, object) {
 
-  const client = await mongoClient.connect(DATABASE_URL);
-  const database = client.db(DATABASE_NAME);
+  const {client, database} = await connect();
 
   await database.collection(collectionName).insertOne(object);
 
