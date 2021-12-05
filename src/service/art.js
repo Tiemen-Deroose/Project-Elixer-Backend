@@ -1,10 +1,17 @@
 const uuid = require('uuid');
+const mime = require('mime-types');
+const fs = require('fs');
 
 const database = require('../data');
 const collections = database.collections;
 
 const { getChildLogger } = require('../core/logging');
-const logger = getChildLogger('art-service');
+let logger;
+
+function createLogger() {
+  if (!logger)
+    logger = getChildLogger('art-service');
+}
 
 function checkAttributes(action, title, material, medium, size, image_url, price) {
   const stringAttributes = [title, material, medium, size, image_url];
@@ -32,6 +39,8 @@ function checkAttributes(action, title, material, medium, size, image_url, price
 }
 
 async function getAll() {
+  createLogger();
+  
   const response = await database.getAll(collections.art);
 
   return {
@@ -40,6 +49,8 @@ async function getAll() {
   };
 }
 async function getById(id) {
+  createLogger();
+
   const requestedArt = database.getById(collections.art, id);
 
   return requestedArt;
@@ -52,6 +63,8 @@ async function create({
   image_url,
   price,
 }) {
+  createLogger();
+
   if (!checkAttributes('create', title, material, medium, size, image_url, price))
     return null;
 
@@ -76,6 +89,8 @@ async function updateById(id, {
   image_url,
   price,
 }) {
+  createLogger();
+
   if (!checkAttributes('update', title, material, medium, size, image_url, price))
     return null;
 
@@ -91,9 +106,19 @@ async function updateById(id, {
   return updatedArt ?? null;
 }
 const deleteById = (id) => {
+  createLogger();
+
   const artToDelete = database.deleteById(collections.art, id);
 
   return artToDelete ?? null;
+};
+const getImageByPath = (path) => {
+  createLogger();
+
+  var mimeType = mime.lookup(path);
+  const src = fs.createReadStream(path);
+  
+  return { src, mimeType };
 };
 
 module.exports = {
@@ -102,4 +127,5 @@ module.exports = {
   create,
   updateById,
   deleteById,
+  getImageByPath,
 };

@@ -1,10 +1,17 @@
 const uuid = require('uuid');
+const mime = require('mime-types');
+const fs = require('fs');
 
 const database = require('../data');
 const collections = database.collections;
 
 const { getChildLogger } = require('../core/logging');
-const logger = getChildLogger('art-service');
+let logger;
+
+function createLogger() {
+  if (!logger)
+    logger = getChildLogger('art-service');
+}
 
 function checkAttributes(action, name, category, material, colour, image_url, price) {
   const stringAttributes = [name, category, material, colour, image_url];
@@ -32,6 +39,8 @@ function checkAttributes(action, name, category, material, colour, image_url, pr
 }
 
 async function getAll() {
+  createLogger();
+
   const response = await database.getAll(collections.jewelry);
 
   return {
@@ -40,6 +49,8 @@ async function getAll() {
   };
 }
 async function getById(id) {
+  createLogger();
+
   const requestedJewelry = database.getById(collections.jewelry, id);
 
   return requestedJewelry;
@@ -52,6 +63,8 @@ async function create({
   image_url,
   price,
 }) {
+  createLogger();
+
   if (!checkAttributes('create', name, category, material, colour, image_url, price))
     return null;
 
@@ -76,6 +89,8 @@ async function updateById(id, {
   image_url,
   price,
 }) {
+  createLogger();
+
   if (!checkAttributes('update', name, category, material, colour, image_url, price))
     return null;
 
@@ -91,10 +106,20 @@ async function updateById(id, {
   return updatedJewelry;
 }
 async function deleteById(id) {
+  createLogger();
+
   const jewelryToDelete = database.deleteById(collections.jewelry, id);
 
   return jewelryToDelete;
 }
+const getImageByPath = (path) => {
+  createLogger();
+
+  var mimeType = mime.lookup(path);
+  const src = fs.createReadStream(path);
+  
+  return { src, mimeType };
+};
 
 module.exports = {
   getAll,
@@ -102,4 +127,5 @@ module.exports = {
   create,
   updateById,
   deleteById,
+  getImageByPath,
 };

@@ -1,7 +1,9 @@
 const config = require('config');
 const mongoClient = require('mongodb').MongoClient;
 
-const { getChildLogger } = require('../core/logging');
+const {
+  getChildLogger,
+} = require('../core/logging');
 let logger;
 
 const NODE_ENV = config.get('env');
@@ -115,7 +117,7 @@ async function create(collectionName, object) {
 const collections = Object.freeze({
   art: 'art',
   jewelry: 'jewelry',
-} );
+});
 
 module.exports = {
   collections,
