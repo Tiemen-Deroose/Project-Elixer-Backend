@@ -40,7 +40,7 @@ function checkAttributes(action, title, material, medium, size, image_url, price
 
 async function getAll() {
   createLogger();
-  
+
   const response = await database.getAll(collections.art);
 
   return {
@@ -103,14 +103,14 @@ async function updateById(id, {
     price,
   });
 
-  return updatedArt ?? null;
+  return updatedArt;
 }
 const deleteById = (id) => {
   createLogger();
 
   const artToDelete = database.deleteById(collections.art, id);
 
-  return artToDelete ?? null;
+  return artToDelete;
 };
 const getImageByPath = (path) => {
   createLogger();
