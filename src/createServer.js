@@ -7,7 +7,8 @@ const {
   initializeLogger,
 } = require('./core/logging');
 const {
-  initializeDatabase,
+  initializeData,
+  shutdownData,
 } = require('./data');
 const installRest = require('./rest');
 
@@ -18,7 +19,7 @@ module.exports = async function createServer () {
 
   initializeLogger();
 
-  await initializeDatabase();
+  await initializeData();
 
   const logger = getLogger();
 
@@ -58,6 +59,7 @@ module.exports = async function createServer () {
     async stop(){
       {
         app.removeAllListeners();
+        await shutdownData();
         getLogger().info('Goodbye');
       }
     },

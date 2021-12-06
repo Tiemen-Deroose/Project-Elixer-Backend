@@ -10,6 +10,6 @@ module.exports = {
 
   mongodb: {
     database_name: 'elixer',
-    database_url: 'mongodb://localhost:27017/elixer',
+    database_url: 'mongodb://localhost:27017/',
   },
 };

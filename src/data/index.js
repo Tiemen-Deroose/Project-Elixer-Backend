@@ -1,5 +1,8 @@
 const config = require('config');
-const mongoClient = require('mongodb').MongoClient;
+const {
+  MongoClient,
+  MongoNotConnectedError,
+} = require('mongodb');
 
 const {
   getChildLogger,
@@ -11,22 +14,27 @@ const isDevelopment = NODE_ENV === 'development';
 
 const DATABASE_URL = config.get('mongodb.database_url');
 const DATABASE_NAME = config.get('mongodb.database_name');
+const DATABASE_CONNECTIONSTRING = `${DATABASE_URL}${DATABASE_NAME}`;
 
 const artSeed = require('./seeds/202111271520_art');
 const jewelrySeed = require('./seeds/202111271530_jewelry');
 
-async function initializeDatabase() {
+let client;
+let database;
+
+async function initializeData() {
   logger = getChildLogger('database');
   logger.info('Testing connection to the database');
 
-  // Check connection, also creates the database
-  mongoClient.connect(DATABASE_URL, function (err, client) {
+  // Test connection, also creates the database
+  MongoClient.connect(DATABASE_CONNECTIONSTRING, function (err, dbClient) {
     if (err) {
       logger.error(`Could not connect to the database: ${err}`);
       throw err;
     }
 
-    client.close();
+    client = dbClient;
+    database = dbClient.db(DATABASE_NAME);
   });
 
 
@@ -44,40 +52,72 @@ async function initializeDatabase() {
   logger.info('Succesfully connected to the database');
 }
 
+async function shutdownData() {
+
+  (await getConnection()).client.close();
+  logger.info('Database connection has been succesfully shut down');
+}
+
 async function connect() {
 
-  const client = await mongoClient.connect(DATABASE_URL);
-  const database = client.db(DATABASE_NAME);
+  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING);
+  database = client.db(DATABASE_NAME);
 
-  return {client, database};
+  if (!client || !database) { // if we didn't get a connection, throw an error
+    logger.error('Could not connect to the database');
+    throw MongoNotConnectedError;
+  }
+
+  console.log('reconnect');
+
+  return {
+    client,
+    database,
+  };
+}
+
+// function to reconnect if the connection was lost
+async function getConnection() {
+
+  if (!client || !database)
+    await connect();
+
+  return {
+    client,
+    database,
+  };
 }
 
 async function getAll(collectionName) {
 
-  const {client, database} = await connect();
+  const {
+    database,
+  } = await getConnection();
 
   const foundCollection = await database.collection(collectionName).find().toArray();
 
-  client.close();
   return foundCollection;
 }
 
 async function getById(collectionName, id) {
 
-  const {client, database} = await connect();
+  const {
+    database,
+  } = await getConnection();
 
   const query = {
     _id: id,
   };
   const foundObject = await database.collection(collectionName).find(query).toArray();
 
-  client.close();
   return foundObject[0];
 }
 
 async function updateById(collectionName, id, object) {
 
-  const {client, database} = await connect();
+  const {
+    database,
+  } = await getConnection();
 
   const query = {
     _id: id,
@@ -89,13 +129,14 @@ async function updateById(collectionName, id, object) {
   await database.collection(collectionName).updateOne(query, newValues);
   const newObject = await database.collection(collectionName).find(query).toArray();
 
-  client.close();
   return newObject[0];
 }
 
 async function deleteById(collectionName, id) {
 
-  const {client, database} = await connect();
+  const {
+    database,
+  } = await getConnection();
 
   const query = {
     _id: id,
@@ -104,17 +145,16 @@ async function deleteById(collectionName, id) {
   const deletedObject = await database.collection(collectionName).find(query).toArray();
   await database.collection(collectionName).deleteOne(query);
 
-  client.close();
   return deletedObject[0];
 }
 
 async function create(collectionName, object) {
 
-  const {client, database} = await connect();
+  const {
+    database,
+  } = await getConnection();
 
   await database.collection(collectionName).insertOne(object);
-
-  client.close();
 }
 
 const collections = Object.freeze({
@@ -124,7 +164,8 @@ const collections = Object.freeze({
 
 module.exports = {
   collections,
-  initializeDatabase,
+  initializeData,
+  shutdownData,
   getAll,
   getById,
   updateById,
