@@ -23,8 +23,7 @@ const updateArt = async (ctx) => {
 };
 
 const deleteArt = async (ctx) => {
-  await artService.deleteById(ctx.params.id);
-  ctx.status = 204;
+  ctx.body = await artService.deleteById(ctx.params.id);
 };
 
 const getImageByPath = async (ctx) => {

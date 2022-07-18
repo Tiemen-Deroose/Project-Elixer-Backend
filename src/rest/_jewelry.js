@@ -23,8 +23,7 @@ const updateJewelry = async (ctx) => {
 };
 
 const deleteJewelry = async (ctx) => {
-  await jewelryService.deleteById(ctx.params.id);
-  ctx.status = 204;
+  ctx.body = await jewelryService.deleteById(ctx.params.id);
 };
 
 const getImageByPath = async (ctx) => {
