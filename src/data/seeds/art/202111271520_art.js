@@ -9,7 +9,7 @@ module.exports = [
     price: 209.99,
   },
   {
-    id: '9ee5fb36-1ff5-4588-b888-fade80b88d05',
+    _id: '9ee5fb36-1ff5-4588-b888-fade80b88d05',
     title: 'Autumn Tree',
     material: 'canvas',
     medium: 'acrylic paint',

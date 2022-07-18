@@ -60,99 +60,23 @@ async function shutdownData() {
 
 async function connect() {
 
-  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING);
-  database = client.db(DATABASE_NAME);
+  database = await MongoClient.connect(DATABASE_CONNECTIONSTRING).client.db(DATABASE_NAME);
 
-  if (!client || !database) { // if we didn't get a connection, throw an error
+  if (!database) { // if we didn't get a connection, throw an error
     logger.error('Could not connect to the database');
     throw MongoNotConnectedError;
   }
 
-  return {
-    client,
-    database,
-  };
+  return database;
 }
 
 // function to reconnect if the connection was lost
 async function getConnection() {
 
-  if (!client || !database)
+  if (!database)
     await connect();
 
-  return {
-    client,
-    database,
-  };
-}
-
-async function getAll(collectionName) {
-
-  const {
-    database,
-  } = await getConnection();
-
-  const foundCollection = await database.collection(collectionName).find().toArray();
-
-  return foundCollection;
-}
-
-async function getById(collectionName, id) {
-
-  const {
-    database,
-  } = await getConnection();
-
-  const query = {
-    _id: id,
-  };
-  const foundObject = await database.collection(collectionName).find(query).toArray();
-
-  return foundObject[0];
-}
-
-async function updateById(collectionName, id, object) {
-
-  const {
-    database,
-  } = await getConnection();
-
-  const query = {
-    _id: id,
-  };
-  const newValues = {
-    $set: object,
-  };
-
-  await database.collection(collectionName).updateOne(query, newValues);
-  const newObject = await database.collection(collectionName).find(query).toArray();
-
-  return newObject[0];
-}
-
-async function deleteById(collectionName, id) {
-
-  const {
-    database,
-  } = await getConnection();
-
-  const query = {
-    _id: id,
-  };
-
-  const deletedObject = await database.collection(collectionName).find(query).toArray();
-  await database.collection(collectionName).deleteOne(query);
-
-  return deletedObject[0];
-}
-
-async function create(collectionName, object) {
-
-  const {
-    database,
-  } = await getConnection();
-
-  await database.collection(collectionName).insertOne(object);
+  return database;
 }
 
 const collections = Object.freeze({
@@ -165,9 +89,4 @@ module.exports = {
   getConnection,
   initializeData,
   shutdownData,
-  getAll,
-  getById,
-  updateById,
-  deleteById,
-  create,
 };

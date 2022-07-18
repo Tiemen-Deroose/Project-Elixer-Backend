@@ -2,8 +2,8 @@ const uuid = require('uuid');
 const mime = require('mime-types');
 const fs = require('fs');
 
-const database = require('../data');
-const collections = database.collections;
+const data = require('../data');
+const collections = data.collections;
 
 const { getChildLogger } = require('../core/logging');
 let logger;
@@ -14,6 +14,8 @@ function createLogger() {
 }
 
 function checkAttributes(action, title, material, medium, size, image_url, price) {
+  createLogger();
+
   const stringAttributes = [title, material, medium, size, image_url];
   let isCorrect = true;
 
@@ -39,32 +41,23 @@ function checkAttributes(action, title, material, medium, size, image_url, price
 }
 
 async function getAll() {
-  createLogger();
-
-  const response = await database.getAll(collections.art);
+  const dbConnection = await data.getConnection();
+  const response = await dbConnection.collection(collections.art).find().toArray();
 
   return {
     data: response,
     count: response.length,
   };
 }
-async function getById(id) {
-  createLogger();
 
-  const requestedArt = database.getById(collections.art, id);
+async function getById(_id) {
+  const dbConnection = await data.getConnection();
+  const requestedArt = await dbConnection.collection(collections.art).findOne({_id});
 
   return requestedArt;
 }
-async function create({
-  title,
-  material,
-  medium,
-  size,
-  image_url,
-  price,
-}) {
-  createLogger();
 
+async function create({ title, material, medium, size, image_url, price }) {
   if (!checkAttributes('create', title, material, medium, size, image_url, price))
     return null;
 
@@ -78,48 +71,45 @@ async function create({
     price,
   };
 
-  database.create(collections.art, createdArt);
+  const dbConnection = await data.getConnection();
+  await dbConnection.collection(collections.art).insertOne(createdArt);
+
   return createdArt;
 }
-async function updateById(id, {
-  title,
-  material,
-  medium,
-  size,
-  image_url,
-  price,
-}) {
-  createLogger();
 
+async function updateById(_id, { title, material, medium, size, image_url, price }) {
   if (!checkAttributes('update', title, material, medium, size, image_url, price))
     return null;
 
-  const updatedArt = database.updateById(collections.art, id, {
+  const updatedArt = {
     title,
     material,
     medium,
     size,
     image_url,
     price,
-  });
+  };
 
-  return updatedArt;
+  const dbConnection = await data.getConnection();
+  await dbConnection.collection(collections.art).updateOne({_id}, {$set: updatedArt});
+
+  return { _id, ...updatedArt};
 }
-const deleteById = (id) => {
-  createLogger();
 
-  const artToDelete = database.deleteById(collections.art, id);
+async function deleteById(_id) {
+  const dbConnection = await data.getConnection();
+  const artToDelete = await dbConnection.collection(collections.art).findOne({_id});
+  await dbConnection.collection(collections.art).deleteOne({_id});
 
   return artToDelete;
-};
-const getImageByPath = (path) => {
-  createLogger();
+}
 
+async function getImageByPath(path) {
   var mimeType = mime.lookup(path);
   const src = fs.createReadStream(path);
   
   return { src, mimeType };
-};
+}
 
 module.exports = {
   getAll,
