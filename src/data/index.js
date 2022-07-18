@@ -1,12 +1,14 @@
 const config = require('config');
+const { Seeder } = require('mongo-seeding');
 const {
   MongoClient,
   MongoNotConnectedError,
 } = require('mongodb');
-
 const {
   getChildLogger,
 } = require('../core/logging');
+const path = require('path');
+
 let logger;
 
 const NODE_ENV = config.get('env');
@@ -16,33 +18,31 @@ const DATABASE_URL = config.get('mongodb.database_url');
 const DATABASE_NAME = config.get('mongodb.database_name');
 const DATABASE_CONNECTIONSTRING = `${DATABASE_URL}${DATABASE_NAME}`;
 
-const artSeed = require('./seeds/202111271520_art');
-const jewelrySeed = require('./seeds/202111271530_jewelry');
-
 let client;
 let database;
 
 async function initializeData() {
-  logger = getChildLogger('database');
+  logger = getChildLogger('data');
   logger.info('Testing connection to the database');
 
   // Test connection, also creates the database
-  MongoClient.connect(DATABASE_CONNECTIONSTRING, function (err, dbClient) {
-    if (err) {
-      logger.error(`Could not connect to the database: ${err}`);
-      throw err;
-    }
+  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING);
+  if (!client) {
+    logger.error('Could not connect to the database');
+    throw MongoNotConnectedError;
+  }
 
-    client = dbClient;
-    database = dbClient.db(DATABASE_NAME);
-  });
-
+  database = client?.db(DATABASE_NAME);
 
   // Seed the database if we are in development
   if (isDevelopment) {
+    logger.info('Seeding the database');
+    const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('seeding');
+
     try {
-      await artSeed.seed();
-      await jewelrySeed.seed();
+      const seeder = new Seeder({database: DATABASE_CONNECTIONSTRING, dropDatabase: SEEDING_DROPDATABASE});
+      const collections = seeder.readCollectionsFromPath(path.resolve(SEEDING_PATH));
+      await seeder.import(collections);
     } catch (err) {
       logger.error(`Error while seeding the database: ${err}`);
       throw err;
@@ -67,8 +67,6 @@ async function connect() {
     logger.error('Could not connect to the database');
     throw MongoNotConnectedError;
   }
-
-  console.log('reconnect');
 
   return {
     client,
@@ -164,6 +162,7 @@ const collections = Object.freeze({
 
 module.exports = {
   collections,
+  getConnection,
   initializeData,
   shutdownData,
   getAll,

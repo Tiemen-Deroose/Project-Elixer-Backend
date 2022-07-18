@@ -1,7 +1,14 @@
 {
   "scripts": {
     "start": "npx env-cmd nodemon src/index.js",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "test": "npx env-cmd -f .env.test jest",
+    "test:coverage": "yarn test --coverage"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "config/test.js"
+    ]
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
@@ -10,6 +17,7 @@
     "env-cmd": "^10.1.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
+    "mongo-seeding": "^3.7.2",
     "mongodb": "^4.2.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
@@ -17,6 +25,9 @@
   "devDependencies": {
     "eslint": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "nodemon": "^2.0.15"
+    "jest": "^27.4.3",
+    "jest-each": "^27.4.2",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.1.6"
   }
 }

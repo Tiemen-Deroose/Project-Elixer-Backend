@@ -12,4 +12,9 @@ module.exports = {
     database_name: 'elixer',
     database_url: 'mongodb://localhost:27017/',
   },
+
+  seeding: {
+    path: './src/data/seeds',
+    dropDatabase: true,
+  },
 };
