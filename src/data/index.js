@@ -54,13 +54,14 @@ async function initializeData() {
 
 async function shutdownData() {
 
-  (await getConnection()).client.close();
+  client.close();
   logger.info('Database connection has been succesfully shut down');
 }
 
 async function connect() {
 
-  database = await MongoClient.connect(DATABASE_CONNECTIONSTRING).client.db(DATABASE_NAME);
+  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING).client;
+  database = database.db(DATABASE_NAME);
 
   if (!database) { // if we didn't get a connection, throw an error
     logger.error('Could not connect to the database');
