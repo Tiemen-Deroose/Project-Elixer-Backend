@@ -1,7 +1,7 @@
 const Router = require('@koa/router');
 const installArtRouter = require('./_art');
 const installJewelryRouter = require('./_jewelry');
-const installUserRouter = require('./_user');
+const installUsersRouter = require('./_users');
 
 module.exports = (app) => {
   const router = new Router({
@@ -10,7 +10,7 @@ module.exports = (app) => {
 
   installArtRouter(router);
   installJewelryRouter(router);
-  installUserRouter(router);
+  installUsersRouter(router);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

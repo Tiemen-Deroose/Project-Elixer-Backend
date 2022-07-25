@@ -1,5 +1,5 @@
 const Router = require('@koa/router');
-const userService = require('../service/user');
+const userService = require('../service/users');
 
 const getAllUsers = async (ctx) => {
   ctx.body = await userService.getAll();
@@ -28,7 +28,7 @@ const deleteUser = async (ctx) => {
 
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/user',
+    prefix: '/users',
   });
 
   router.get('/', getAllUsers);
