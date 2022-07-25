@@ -83,6 +83,7 @@ async function getConnection() {
 const collections = Object.freeze({
   art: 'art',
   jewelry: 'jewelry',
+  user: 'user',
 });
 
 module.exports = {
