@@ -22,5 +22,7 @@ module.exports = {
       changelogCollectionName: 'changelog',
       migrationFileExtension: '.js',
     },
+
+    seeding: {},
   },
 };
