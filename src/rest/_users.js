@@ -1,15 +1,21 @@
 const Router = require('@koa/router');
 const userService = require('../service/users');
 
-const getAllUsers = async (ctx) => {
-  ctx.body = await userService.getAll();
+const login = async (ctx) => {
+  const { email, password } = ctx.request.body;
+  const response = await userService.login(email, password);
+  ctx.body = response;
 };
 
-const createUser = async (ctx) => {
-  ctx.body = await userService.create({
+const register = async (ctx) => {
+  ctx.body = await userService.register({
     ...ctx.request.body,
   });
   ctx.status = 201;
+};
+
+const getAllUsers = async (ctx) => {
+  ctx.body = await userService.getAll();
 };
 
 const getUserById = async (ctx) => {
@@ -31,8 +37,9 @@ module.exports = (app) => {
     prefix: '/users',
   });
 
+  router.post('/login', login);
+  router.post('/register', register);
   router.get('/', getAllUsers);
-  router.post('/', createUser);
   router.get('/:id', getUserById);
   router.put('/:id', updateUser);
   router.delete('/:id', deleteUser);

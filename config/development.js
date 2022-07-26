@@ -28,4 +28,19 @@ module.exports = {
       dropDatabase: true,
     },
   },
+
+  auth: {
+    argon: {
+      saltLength: 16,
+      hashLength: 32,
+      timeCost: 6,
+      memoryCost: 2 ** 17,
+    },
+    jwt: {
+      secret: 'h9VAbGyVikC2eGUFF8OI1twkkxbKAXA1iN86oBmQi6QMyPOXr3RgiNY6ZmZWqUTOHdTvBn6PRPVHM2SdWQyxRSRpwYg6wjvlq7XkVi6fQ7rhWjNQ7rv4IC3SMHpFtrXYngnwkGWx1Af2',
+      expirationInterval: 60 * 60 * 1000,
+      issuer: 'elixer.hogent.be',
+      audience: 'elixer.hogent.be',
+    },
+  },
 };
