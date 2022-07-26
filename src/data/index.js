@@ -1,4 +1,5 @@
 const config = require('config');
+const { up, down, config: migrationConfig } = require('migrate-mongo');
 const { Seeder } = require('mongo-seeding');
 const {
   MongoClient,
@@ -18,6 +19,10 @@ const DATABASE_URL = config.get('mongodb.database_url');
 const DATABASE_NAME = config.get('mongodb.database_name');
 const DATABASE_CONNECTIONSTRING = `${DATABASE_URL}${DATABASE_NAME}`;
 
+const MIGRATION_CONFIG = config.get('mongodb.migration');
+
+const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('mongodb.seeding');
+
 let client;
 let database;
 
@@ -31,13 +36,32 @@ async function initializeData() {
     logger.error('Could not connect to the database');
     throw MongoNotConnectedError;
   }
-
   database = client?.db(DATABASE_NAME);
+
+  let migrationsFailed = true;
+  migrationConfig.set(MIGRATION_CONFIG);
+
+  try {
+    logger.info('Migrating the database');
+    await up(database);
+    migrationsFailed = false;
+  } catch (error) {
+    logger.error(`Error while migrating the database: ${error}`);
+  }
+
+  if (migrationsFailed) {
+    try {
+      await down(database);
+    } catch (error) {
+      logger.error(`Error while undoing last migration: ${error}`);
+    }
+
+    throw new Error('Migrations failed');
+  }
 
   // Seed the database if we are in development
   if (isDevelopment) {
     logger.info('Seeding the database');
-    const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('seeding');
 
     try {
       const seeder = new Seeder({database: DATABASE_CONNECTIONSTRING, dropDatabase: SEEDING_DROPDATABASE});

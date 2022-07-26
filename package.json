@@ -3,7 +3,8 @@
     "start": "npx env-cmd nodemon src/index.js",
     "lint": "eslint . --fix",
     "test": "npx env-cmd -f .env.test jest",
-    "test:coverage": "yarn test --coverage"
+    "test:coverage": "yarn test --coverage",
+    "migrate:create": "migrate-mongo create -f config/migrate-mongo-config.js"
   },
   "jest": {
     "testPathIgnorePatterns": [
@@ -17,6 +18,7 @@
     "env-cmd": "^10.1.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
+    "migrate-mongo": "8.2.3",
     "mongo-seeding": "^3.7.2",
     "mongodb": "^4.2.0",
     "uuid": "^8.3.2",
