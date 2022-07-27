@@ -3,7 +3,7 @@ const data = require('../data');
 const { hashPassword, verifyPassword } = require('../core/password');
 const collections = data.collections;
 const roles = require('../core/roles');
-const { generateJWT } = require('../core/jwt');
+const { generateJWT, verifyJWT } = require('../core/jwt');
 
 const makeExposedUser = ({ password, ...user}) => user; // eslint-disable-line no-unused-vars
 
@@ -14,6 +14,40 @@ const makeLoginData = async (user) => {
     user: makeExposedUser(user),
   };
 };
+
+const { getChildLogger } = require('../core/logging');
+
+async function checkAndParseSession(authHeader) {
+  if (!authHeader) {
+    throw new Error('You need to be signed in');
+  }
+
+  if (!authHeader.startsWith('Bearer ')) {
+    throw new Error('Invalid authentication token');
+  }
+
+  const authToken = authHeader.substr(7);
+  try {
+    const { roles, userId } = await verifyJWT(authToken);
+
+    return {
+      userId,
+      roles,
+      authToken,
+    };
+  } catch (error) {
+    getChildLogger('users-service').error(error.message, { error });
+    throw new Error(error.message);
+  }
+}
+
+function checkRole(role, roles) {
+  const hasPermission = roles.includes(role);
+
+  if (!hasPermission) {
+    throw new Error('You are not allowed to view this part of the application');
+  }
+}
 
 async function login(email, password) {
   const user = await getByEmail(email);
@@ -63,7 +97,7 @@ async function getById(_id) {
   const dbConnection = await data.getConnection();
   const requestedUser = await dbConnection.collection(collections.users).findOne({_id});
 
-  return requestedUser;
+  return makeExposedUser(requestedUser);
 }
 
 async function getByEmail(email) {
@@ -84,7 +118,7 @@ async function updateById(_id, { username, email, password, roles}) {
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.users).updateOne({_id}, {$set: updatedUser});
 
-  return { _id, ...updatedUser};
+  return { _id, ...makeExposedUser(updatedUser) };
 }
 
 async function deleteById(_id) {
@@ -92,10 +126,12 @@ async function deleteById(_id) {
   const userToDelete = await dbConnection.collection(collections.users).findOne({_id});
   await dbConnection.collection(collections.users).deleteOne({_id});
 
-  return userToDelete;
+  return makeExposedUser(userToDelete);
 }
 
 module.exports = {
+  checkAndParseSession,
+  checkRole,
   login,
   register,
   getAll,

@@ -1,5 +1,7 @@
 const Router = require('@koa/router');
 const userService = require('../service/users');
+const { requireAuthentication, makeRequireRole } = require('../core/auth');
+const role = require('../core/roles');
 
 const login = async (ctx) => {
   const { email, password } = ctx.request.body;
@@ -39,10 +41,13 @@ module.exports = (app) => {
 
   router.post('/login', login);
   router.post('/register', register);
-  router.get('/', getAllUsers);
-  router.get('/:id', getUserById);
-  router.put('/:id', updateUser);
-  router.delete('/:id', deleteUser);
+
+  const requireAdmin = makeRequireRole(role.ADMIN);
+
+  router.get('/', requireAuthentication, requireAdmin, getAllUsers);
+  router.get('/:id', requireAuthentication, getUserById);
+  router.put('/:id', requireAuthentication, updateUser);
+  router.delete('/:id', requireAuthentication, deleteUser);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

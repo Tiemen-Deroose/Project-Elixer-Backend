@@ -1,5 +1,6 @@
 const Router = require('@koa/router');
 const jewelryService = require('../service/jewelry');
+const { requireAuthentication } = require('../core/auth');
 
 const getAllJewelry = async (ctx) => {
   ctx.body = await jewelryService.getAll();
@@ -38,12 +39,12 @@ module.exports = (app) => {
     prefix: '/jewelry',
   });
 
-  router.get('/', getAllJewelry);
-  router.post('/', createJewelry);
-  router.get('/:id', getJewelryById);
-  router.put('/:id', updateJewelry);
-  router.delete('/:id', deleteJewelry);
-  router.get('/images/:image', getImageByPath);
+  router.get('/', requireAuthentication, getAllJewelry);
+  router.post('/', requireAuthentication, createJewelry);
+  router.get('/:id', requireAuthentication, getJewelryById);
+  router.put('/:id', requireAuthentication, updateJewelry);
+  router.delete('/:id', requireAuthentication, deleteJewelry);
+  router.get('/images/:image', requireAuthentication, getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

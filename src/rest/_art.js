@@ -1,5 +1,6 @@
 const Router = require('@koa/router');
 const artService = require('../service/art');
+const { requireAuthentication } = require('../core/auth');
 
 const getAllArt = async (ctx) => {
   ctx.body = await artService.getAll();
@@ -38,12 +39,12 @@ module.exports = (app) => {
     prefix: '/art',
   });
 
-  router.get('/', getAllArt);
-  router.post('/', createArt);
-  router.get('/:id', getArtById);
-  router.put('/:id', updateArt);
-  router.delete('/:id', deleteArt);
-  router.get('/images/:image', getImageByPath);
+  router.get('/', requireAuthentication, getAllArt);
+  router.post('/', requireAuthentication, createArt);
+  router.get('/:id', requireAuthentication, getArtById);
+  router.put('/:id', requireAuthentication, updateArt);
+  router.delete('/:id', requireAuthentication, deleteArt);
+  router.get('/images/:image', requireAuthentication, getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };
