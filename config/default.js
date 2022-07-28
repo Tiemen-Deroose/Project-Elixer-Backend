@@ -12,6 +12,14 @@ module.exports = {
     limit: 100,
     offset: 0,
   },
+
+  validation: {
+    abortEarly: true,
+    allowUnknown: false,
+    context: true,
+    convert: true,
+    presence: 'required',
+  },
   
   mongodb: {
     database_name: 'elixer',

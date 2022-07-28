@@ -1,4 +1,6 @@
+const Joi = require('joi');
 const Router = require('@koa/router');
+const validate = require('./_validation');
 const jewelryService = require('../service/jewelry');
 const { requireAuthentication } = require('../core/auth');
 
@@ -7,6 +9,12 @@ const getAllJewelry = async (ctx) => {
   const offset = ctx.query.offset && Number(ctx.query.offset);
   ctx.body = await jewelryService.getAll(limit, offset);
 };
+getAllJewelry.validationScheme = {
+  query: Joi.object({
+    limit: Joi.number().positive().integer().max(1000).optional(),
+    offset: Joi.number().integer().min(0).optional(),
+  }).and('limit', 'offset'),
+};
 
 const createJewelry = async (ctx) => {
   ctx.body = await jewelryService.create({
@@ -14,9 +22,24 @@ const createJewelry = async (ctx) => {
   });
   ctx.status = 201;
 };
+createJewelry.validationScheme = {
+  body: {
+    name: Joi.string().max(255),
+    category: Joi.string().max(50),
+    material: Joi.string().max(50),
+    colour: Joi.string().max(50),
+    image_url: Joi.string().uri(),
+    price: Joi.number().min(0),
+  },
+};
 
 const getJewelryById = async (ctx) => {
   ctx.body = await jewelryService.getById(ctx.params.id);
+};
+getJewelryById.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
 };
 
 const updateJewelry = async (ctx) => {
@@ -24,9 +47,27 @@ const updateJewelry = async (ctx) => {
     ...ctx.request.body,
   });
 };
+updateJewelry.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    name: Joi.string().max(255),
+    category: Joi.string().max(50),
+    material: Joi.string().max(50),
+    colour: Joi.string().max(50),
+    image_url: Joi.string().uri(),
+    price: Joi.number().min(0),
+  },
+};
 
 const deleteJewelry = async (ctx) => {
   ctx.body = await jewelryService.deleteById(ctx.params.id);
+};
+deleteJewelry.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
 };
 
 const getImageByPath = async (ctx) => {
@@ -35,18 +76,23 @@ const getImageByPath = async (ctx) => {
   ctx.body = src;
   ctx.response.set('content-type', mimeType);
 };
+getImageByPath.validationScheme = {
+  params: {
+    image: Joi.string().max(50).regex(new RegExp('[A-Z]*.(jpg|png)')),
+  },
+};
 
 module.exports = (app) => {
   const router = new Router({
     prefix: '/jewelry',
   });
 
-  router.get('/', requireAuthentication, getAllJewelry);
-  router.post('/', requireAuthentication, createJewelry);
-  router.get('/:id', requireAuthentication, getJewelryById);
-  router.put('/:id', requireAuthentication, updateJewelry);
-  router.delete('/:id', requireAuthentication, deleteJewelry);
-  router.get('/images/:image', requireAuthentication, getImageByPath);
+  router.get('/', validate(getAllJewelry.validationScheme), requireAuthentication, getAllJewelry);
+  router.post('/', validate(createJewelry.validationScheme), requireAuthentication, createJewelry);
+  router.get('/:id', validate(getJewelryById.validationScheme), requireAuthentication, getJewelryById);
+  router.put('/:id', validate(updateJewelry.validationScheme), requireAuthentication, updateJewelry);
+  router.delete('/:id', validate(deleteJewelry.validationScheme), requireAuthentication, deleteJewelry);
+  router.get('/images/:image', validate(getImageByPath.validationScheme), requireAuthentication, getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };
