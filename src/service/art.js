@@ -6,16 +6,13 @@ const data = require('../data');
 const collections = data.collections;
 
 const { getChildLogger } = require('../core/logging');
-let logger;
-
-function createLogger() {
-  if (!logger)
-    logger = getChildLogger('art-service');
+let loggerInstance;
+function Logger() {
+  if (!loggerInstance) loggerInstance = getChildLogger('art-service');
+  return loggerInstance;
 }
 
 function checkAttributes(action, title, material, medium, size, image_url, price) {
-  createLogger();
-
   const stringAttributes = [title, material, medium, size, image_url];
   let isCorrect = true;
 
@@ -23,7 +20,7 @@ function checkAttributes(action, title, material, medium, size, image_url, price
   stringAttributes.forEach((attribute) => {
     counter++;
     if (typeof attribute !== 'string') {
-      logger.error(
+      Logger().error(
         `Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}', arg ${counter}`,
       );
       isCorrect = false;
@@ -31,7 +28,7 @@ function checkAttributes(action, title, material, medium, size, image_url, price
   });
 
   if (typeof price !== 'number') {
-    logger.error(
+    Logger().error(
       `Could not ${action} art: attribute 'price' must be a number`,
     );
     isCorrect = false;

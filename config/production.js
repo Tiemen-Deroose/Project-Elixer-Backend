@@ -1,5 +1,5 @@
 module.exports = {
   logger: {
-    silent: true,
+    level: 'info',
   },
 };

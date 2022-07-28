@@ -1,6 +1,6 @@
 module.exports = {
   logger: {
-    silent: false,
+    level: 'debug',
   },
 
   mongodb: {

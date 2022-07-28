@@ -5,6 +5,13 @@ const collections = data.collections;
 const roles = require('../core/roles');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 
+const { getChildLogger } = require('../core/logging');
+let loggerInstance;
+function Logger() {
+  if (!loggerInstance) loggerInstance = getChildLogger('art-service');
+  return loggerInstance;
+}
+
 const makeExposedUser = ({ password, ...user}) => user; // eslint-disable-line no-unused-vars
 
 const makeLoginData = async (user) => {
@@ -14,8 +21,6 @@ const makeLoginData = async (user) => {
     user: makeExposedUser(user),
   };
 };
-
-const { getChildLogger } = require('../core/logging');
 
 async function checkAndParseSession(authHeader) {
   if (!authHeader) {
@@ -36,7 +41,7 @@ async function checkAndParseSession(authHeader) {
       authToken,
     };
   } catch (error) {
-    getChildLogger('users-service').error(error.message, { error });
+    Logger().error(error.message, { error });
     throw new Error(error.message);
   }
 }

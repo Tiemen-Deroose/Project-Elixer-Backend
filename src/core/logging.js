@@ -2,7 +2,7 @@ const { createLogger, transports } = require('winston');
 const { format } = require('logform');
 const { combine, timestamp, colorize, printf } = format;
 const config = require('config');
-const LOGGER_SILENT = config.get('logger.silent');
+const { silent: LOGGER_SILENT, level: LOGGER_LEVEL } = config.get('logger');
 
 const customFormat = printf(({ name = 'server', level, message, timestamp }) => {
   return `[${timestamp}] ${name} | ${level}: ${message}`;
@@ -18,11 +18,14 @@ const initializeLogger = () => {
       customFormat,
     ),
     silent: LOGGER_SILENT,
+    level: LOGGER_LEVEL,
     transports: [
       new transports.Console(),
       new transports.File({ filename: 'combined.log' }),
     ],
   });
+
+  logger.info(`Logger initialized at log level '${LOGGER_LEVEL}'`);
 };
 
 const getLogger = () => {

@@ -1,5 +1,6 @@
 module.exports = {
   logger: {
+    level: 'error',
     silent: true,
   },
   
