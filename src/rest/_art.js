@@ -3,7 +3,9 @@ const artService = require('../service/art');
 const { requireAuthentication } = require('../core/auth');
 
 const getAllArt = async (ctx) => {
-  ctx.body = await artService.getAll();
+  const limit = ctx.query.limit && Number(ctx.query.limit);
+  const offset = ctx.query.offset && Number(ctx.query.offset);
+  ctx.body = await artService.getAll(limit, offset);
 };
 
 const createArt = async (ctx) => {

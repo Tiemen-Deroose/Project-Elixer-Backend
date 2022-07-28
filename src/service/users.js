@@ -1,9 +1,12 @@
+const config = require('config');
 const uuid = require('uuid');
 const data = require('../data');
 const { hashPassword, verifyPassword } = require('../core/password');
 const collections = data.collections;
 const roles = require('../core/roles');
 const { generateJWT, verifyJWT } = require('../core/jwt');
+
+const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
 
 const { getChildLogger } = require('../core/logging');
 let loggerInstance;
@@ -87,7 +90,7 @@ async function register({ username, email, password }) {
   return await makeLoginData(createdUser);
 }
 
-async function getAll() {
+async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
   const response = (await dbConnection.collection(collections.users).find().toArray())
     .map((user) => makeExposedUser(user));
@@ -95,6 +98,8 @@ async function getAll() {
   return {
     data: response,
     count: response.length,
+    limit,
+    offset,
   };
 }
 

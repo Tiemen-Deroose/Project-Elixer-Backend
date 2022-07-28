@@ -17,7 +17,9 @@ const register = async (ctx) => {
 };
 
 const getAllUsers = async (ctx) => {
-  ctx.body = await userService.getAll();
+  const limit = ctx.query.limit && Number(ctx.query.limit);
+  const offset = ctx.query.offset && Number(ctx.query.offset);
+  ctx.body = await userService.getAll(limit, offset);
 };
 
 const getUserById = async (ctx) => {

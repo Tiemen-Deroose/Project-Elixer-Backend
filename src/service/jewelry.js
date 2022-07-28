@@ -1,9 +1,11 @@
+const config = require('config');
 const uuid = require('uuid');
 const mime = require('mime-types');
 const fs = require('fs');
-
 const data = require('../data');
 const collections = data.collections;
+
+const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
 
 const { getChildLogger } = require('../core/logging');
 let loggerInstance;
@@ -37,13 +39,15 @@ function checkAttributes(action, name, category, material, colour, image_url, pr
   return isCorrect;
 }
 
-async function getAll() {
+async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
   const response = await dbConnection.collection(collections.jewelry).find().toArray();
 
   return {
     data: response,
     count: response.length,
+    limit,
+    offset,
   };
 }
 

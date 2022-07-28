@@ -7,6 +7,11 @@ module.exports = {
     origins: ['http://localhost:3000'],
     maxAge: 3 * 60 * 60,
   },
+
+  pagination: {
+    limit: 100,
+    offset: 0,
+  },
   
   mongodb: {
     database_name: 'elixer',

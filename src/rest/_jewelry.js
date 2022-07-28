@@ -3,7 +3,9 @@ const jewelryService = require('../service/jewelry');
 const { requireAuthentication } = require('../core/auth');
 
 const getAllJewelry = async (ctx) => {
-  ctx.body = await jewelryService.getAll();
+  const limit = ctx.query.limit && Number(ctx.query.limit);
+  const offset = ctx.query.offset && Number(ctx.query.offset);
+  ctx.body = await jewelryService.getAll(limit, offset);
 };
 
 const createJewelry = async (ctx) => {
