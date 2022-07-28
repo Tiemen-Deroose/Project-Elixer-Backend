@@ -6,11 +6,6 @@
     "test:coverage": "yarn test --coverage",
     "migrate:create": "migrate-mongo create -f config/migrate-mongo-config.js"
   },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "config/test.js"
-    ]
-  },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/router": "^10.1.1",

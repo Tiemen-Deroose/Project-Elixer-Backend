@@ -1,10 +1,5 @@
-const supertest = require('supertest');
-const createServer = require('../../src/createServer');
-const {
-  getConnection,
-  collections,
-  shutdownData,
-} = require('../../src/data');
+const { collections } = require('../../src/data');
+const { withServer, loginUser } = require('../supertest.setup');
 
 const art_data = [{
   _id: 'f064a797-99fa-4ec0-9454-ba14838f5df4',
@@ -26,19 +21,17 @@ const art_data = [{
 }];
 
 describe('Art', () => {
-  let server;
   let request;
   let database;
+  let loginHeader;
 
-  beforeAll(async () => {
-    server = await createServer();
-    request = supertest(server.getApp().callback());
-    database = await getConnection();
+  withServer(({ request: r, db}) => {
+    request = r;
+    database = db;
   });
 
-  afterAll(async () => {
-    await shutdownData();
-    await server.stop();
+  beforeAll(async () => {
+    loginHeader = await loginUser(request);
   });
 
   const url = '/api/art';
@@ -54,7 +47,7 @@ describe('Art', () => {
     });
 
     test('it should have code 200 and return all art', async () => {
-      const response = await request.get(url);
+      const response = await request.get(url).set('Authorization', loginHeader);
 
       expect(response.status).toBe(200);
       expect(response.body.count).toEqual(art_data.length);
@@ -73,7 +66,7 @@ describe('Art', () => {
     });
 
     test('it should have code 200 and return the requested art', async () => {
-      const response = await request.get(`${url}/${art_data[0]._id}`);
+      const response = await request.get(`${url}/${art_data[0]._id}`).set('Authorization', loginHeader);
       expect(response.status).toBe(200);
       expect(response.body).toEqual(art_data[0]);
     });
@@ -86,7 +79,7 @@ describe('Art', () => {
     });
 
     test('it should have code 201 and return the created art', async () => {
-      const response = await request.post(url).send(art_data[0]);
+      const response = await request.post(url).send(art_data[0]).set('Authorization', loginHeader);
 
       expect(response.status).toBe(201);
       expect(response.body._id).toBeTruthy();
@@ -109,7 +102,7 @@ describe('Art', () => {
     });
 
     test('it should have code 200 and update art', async () => {
-      const response = await request.put(`${url}/${art_data[0]._id}`).send(art_data[1]);
+      const response = await request.put(`${url}/${art_data[0]._id}`).send(art_data[1]).set('Authorization', loginHeader);
 
       expect(response.status).toBe(200);
       expect(response.body._id).toBeTruthy();
@@ -132,7 +125,7 @@ describe('Art', () => {
     });
 
     test('it should have code 200 and delete art', async () => {
-      const response = await request.delete(`${url}/${art_data[0]._id}`);
+      const response = await request.delete(`${url}/${art_data[0]._id}`).set('Authorization', loginHeader);
 
       expect(response.status).toBe(200);
       expect(response.body._id).toBeTruthy();
@@ -155,7 +148,7 @@ describe('Art', () => {
     });
 
     test('it should have code 200 and return the requested art image', async () => {
-      const response = await request.get(art_data[0].image_url.replace('http://localhost:9000',''));
+      const response = await request.get(art_data[0].image_url.replace('http://localhost:9000','')).set('Authorization', loginHeader);
 
       expect(response.status).toBe(200);
       expect(response.headers['content-type']).toEqual('image/jpeg');
