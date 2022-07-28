@@ -41,7 +41,7 @@ function checkAttributes(action, title, material, medium, size, image_url, price
 
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
-  const response = await dbConnection.collection(collections.art).find().toArray();
+  const response = await dbConnection.collection(collections.art).find().skip(offset).limit(limit).toArray();
 
   return {
     data: response,

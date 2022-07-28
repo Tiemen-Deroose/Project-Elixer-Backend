@@ -92,7 +92,7 @@ async function register({ username, email, password }) {
 
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
-  const response = (await dbConnection.collection(collections.users).find().toArray())
+  const response = (await dbConnection.collection(collections.users).find().skip(offset).limit(limit).toArray())
     .map((user) => makeExposedUser(user));
 
   return {
