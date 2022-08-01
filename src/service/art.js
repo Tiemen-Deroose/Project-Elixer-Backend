@@ -14,31 +14,6 @@ function Logger() {
   return loggerInstance;
 }
 
-function checkAttributes(action, title, material, medium, size, image_url, price) {
-  const stringAttributes = [title, material, medium, size, image_url];
-  let isCorrect = true;
-
-  var counter = 0;
-  stringAttributes.forEach((attribute) => {
-    counter++;
-    if (typeof attribute !== 'string') {
-      Logger().error(
-        `Could not ${action} art: expected string, but got ${typeof attribute} '${attribute}', arg ${counter}`,
-      );
-      isCorrect = false;
-    }
-  });
-
-  if (typeof price !== 'number') {
-    Logger().error(
-      `Could not ${action} art: attribute 'price' must be a number`,
-    );
-    isCorrect = false;
-  }
-
-  return isCorrect;
-}
-
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
   const response = await dbConnection.collection(collections.art).find().skip(offset).limit(limit).toArray();
@@ -59,9 +34,6 @@ async function getById(_id) {
 }
 
 async function create({ title, material, medium, size, image_url, price }) {
-  if (!checkAttributes('create', title, material, medium, size, image_url, price))
-    return null;
-
   const createdArt = {
     _id: uuid.v4(),
     title,
@@ -79,9 +51,6 @@ async function create({ title, material, medium, size, image_url, price }) {
 }
 
 async function updateById(_id, { title, material, medium, size, image_url, price }) {
-  if (!checkAttributes('update', title, material, medium, size, image_url, price))
-    return null;
-
   const updatedArt = {
     title,
     material,

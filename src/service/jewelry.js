@@ -14,31 +14,6 @@ function Logger() {
   return loggerInstance;
 }
 
-function checkAttributes(action, name, category, material, colour, image_url, price) {
-  const stringAttributes = [name, category, material, colour, image_url];
-  let isCorrect = true;
-
-  var counter = 0;
-  stringAttributes.forEach((attribute) => {
-    counter++;
-    if (typeof attribute !== 'string' || !attribute) {
-      Logger().error(
-        `Could not ${action} jewelry: expected string, but got ${typeof attribute} '${attribute}', arg ${counter}`,
-      );
-      isCorrect = false;
-    }
-  });
-
-  if (typeof price !== 'number') {
-    Logger().error(
-      `Could not ${action} jewelry: attribute 'price' must be a number`,
-    );
-    isCorrect = false;
-  }
-
-  return isCorrect;
-}
-
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
   const dbConnection = await data.getConnection();
   const response = await dbConnection.collection(collections.jewelry).find().skip(offset).limit(limit).toArray();
@@ -59,9 +34,6 @@ async function getById(_id) {
 }
 
 async function create({ name, category, material, colour, image_url, price }) {
-  if (!checkAttributes('create', name, category, material, colour, image_url, price))
-    return null;
-
   const createdJewelry = {
     _id: uuid.v4(),
     name: name,
@@ -79,9 +51,6 @@ async function create({ name, category, material, colour, image_url, price }) {
 }
 
 async function updateById(_id, { name, category, material, colour, image_url, price }) {
-  if (!checkAttributes('update', name, category, material, colour, image_url, price))
-    return null;
-
   const updatedJewelry = {
     name,
     category,
