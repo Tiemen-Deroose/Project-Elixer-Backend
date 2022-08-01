@@ -9,11 +9,10 @@ const { generateJWT, verifyJWT } = require('../core/jwt');
 const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
 
 const { getChildLogger } = require('../core/logging');
-let loggerInstance;
-function Logger() {
-  if (!loggerInstance) loggerInstance = getChildLogger('art-service');
-  return loggerInstance;
-}
+const debugLog = (message, meta = {}) => {
+  if (!this.logger) this.logger = getChildLogger('users-service');
+  this.logger.debug(message, meta);
+};
 
 const makeExposedUser = ({ password, ...user}) => user; // eslint-disable-line no-unused-vars
 
@@ -44,7 +43,7 @@ async function checkAndParseSession(authHeader) {
       authToken,
     };
   } catch (error) {
-    Logger().error(error.message, { error });
+    getChildLogger('users-service').error(error.message, { error });
     throw new Error(error.message);
   }
 }
@@ -58,6 +57,7 @@ function checkRole(role, roles) {
 }
 
 async function login(email, password) {
+  debugLog(`Logging in user with email: ${email}`);
   const user = await getByEmail(email);
 
   if (!user)
@@ -68,10 +68,12 @@ async function login(email, password) {
   if (!passwordValid)
     throw new Error('The given email and password do not match');
 
+  debugLog(`Successfully logged in user with email: ${email}`);
   return await makeLoginData(user);
 }
 
 async function register({ username, email, password }) {
+  debugLog(`Registering new user with email: ${email}`);
   const createdUser = {
     _id: uuid.v4(),
     username,
@@ -87,10 +89,12 @@ async function register({ username, email, password }) {
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.users).insertOne(createdUser);
 
+  debugLog(`Succesfully registered new user with email: ${email}`);
   return await makeLoginData(createdUser);
 }
 
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
+  debugLog(`Getting all users with limit: ${limit} and offset: ${offset}`);
   const dbConnection = await data.getConnection();
   const response = (await dbConnection.collection(collections.users).find().skip(offset).limit(limit).toArray())
     .map((user) => makeExposedUser(user));
@@ -104,16 +108,20 @@ async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINAT
 }
 
 async function getById(_id) {
+  debugLog(`Getting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const requestedUser = await dbConnection.collection(collections.users).findOne({_id});
 
+  debugLog(`${requestedUser ? 'Found':'Could not find'} user with id: ${_id}`);
   return makeExposedUser(requestedUser);
 }
 
 async function getByEmail(email) {
+  debugLog(`Getting user with email: ${email}`);
   const dbConnection = await data.getConnection();
   const requestedUser = await dbConnection.collection(collections.users).findOne({'email': email});
 
+  debugLog(`${requestedUser ? 'Found':'Could not find'} user with email: ${email}`);
   return requestedUser;
 }
 
@@ -125,6 +133,7 @@ async function updateById(_id, { username, email, password, roles}) {
     roles: roles,
   };
 
+  debugLog(`Updating user with id: ${_id}`);
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.users).updateOne({_id}, {$set: updatedUser});
 
@@ -132,9 +141,11 @@ async function updateById(_id, { username, email, password, roles}) {
 }
 
 async function deleteById(_id) {
+  debugLog(`Deleting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const userToDelete = await dbConnection.collection(collections.users).findOne({_id});
   await dbConnection.collection(collections.users).deleteOne({_id});
+  debugLog(`${userToDelete ? 'Deleted':'Could not find'} user with id: ${_id}`);
 
   return makeExposedUser(userToDelete);
 }

@@ -8,13 +8,13 @@ const collections = data.collections;
 const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
 
 const { getChildLogger } = require('../core/logging');
-let loggerInstance;
-function Logger() {
-  if (!loggerInstance) loggerInstance = getChildLogger('art-service');
-  return loggerInstance;
-}
+const debugLog = (message, meta = {}) => {
+  if (!this.logger) this.logger = getChildLogger('jewelry-service');
+  this.logger.debug(message, meta);
+};
 
 async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINATION_OFFSET) {
+  debugLog(`Getting all jewelry with limit: ${limit} and offset: ${offset}`);
   const dbConnection = await data.getConnection();
   const response = await dbConnection.collection(collections.jewelry).find().skip(offset).limit(limit).toArray();
 
@@ -27,9 +27,11 @@ async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINAT
 }
 
 async function getById(_id) {
+  debugLog(`Getting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const requestedJewelry = await dbConnection.collection(collections.jewelry).findOne({_id});
 
+  debugLog(`${requestedJewelry ? 'Found':'Could not find'} jewelry with id: ${_id}`);
   return requestedJewelry;
 }
 
@@ -44,6 +46,7 @@ async function create({ name, category, material, colour, image_url, price }) {
     price,
   };
 
+  debugLog(`Inserting new jewelry with id: ${createdJewelry._id}`);
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.jewelry).insertOne(createdJewelry);
 
@@ -60,6 +63,7 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
     price,
   };
 
+  debugLog(`Updating jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.jewelry).updateOne({_id}, {$set: updatedJewelry});
 
@@ -67,14 +71,17 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
 }
 
 async function deleteById(_id) {
+  debugLog(`Deleting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const jewelryToDelete = await dbConnection.collection(collections.jewelry).findOne({_id});
   await dbConnection.collection(collections.jewelry).deleteOne({_id});
+  debugLog(`${jewelryToDelete ? 'Deleted':'Could not find'} jewelry with id: ${_id}`);
 
   return jewelryToDelete;
 }
 
 async function getImageByPath(path) {
+  debugLog(`Getting image with path: ${path}`);
   var mimeType = mime.lookup(path);
   const src = fs.createReadStream(path);
   
