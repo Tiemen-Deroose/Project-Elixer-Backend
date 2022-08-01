@@ -62,7 +62,7 @@ updateJewelry.validationScheme = {
 };
 
 const deleteJewelry = async (ctx) => {
-  ctx.body = await jewelryService.deleteById(ctx.params.id);
+  ctx.status = await jewelryService.deleteById(ctx.params.id) ? 204 : 404;
 };
 deleteJewelry.validationScheme = {
   params: {

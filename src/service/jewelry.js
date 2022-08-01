@@ -73,11 +73,10 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
 async function deleteById(_id) {
   debugLog(`Deleting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const jewelryToDelete = await dbConnection.collection(collections.jewelry).findOne({_id});
-  await dbConnection.collection(collections.jewelry).deleteOne({_id});
-  debugLog(`${jewelryToDelete ? 'Deleted':'Could not find'} jewelry with id: ${_id}`);
+  const deleted = (await dbConnection.collection(collections.jewelry).deleteOne({_id})).deletedCount;
+  debugLog(`${deleted ? 'Deleted':'Could not find'} jewelry with id: ${_id}`);
 
-  return jewelryToDelete;
+  return deleted;
 }
 
 async function getImageByPath(path) {

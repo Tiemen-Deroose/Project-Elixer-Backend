@@ -62,7 +62,7 @@ updateArt.validationScheme = {
 };
 
 const deleteArt = async (ctx) => {
-  ctx.body = await artService.deleteById(ctx.params.id);
+  ctx.status = await artService.deleteById(ctx.params.id) ? 204 : 404;
 };
 deleteArt.validationScheme = {
   params: {

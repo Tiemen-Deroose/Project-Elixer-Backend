@@ -143,11 +143,10 @@ async function updateById(_id, { username, email, password, roles}) {
 async function deleteById(_id) {
   debugLog(`Deleting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const userToDelete = await dbConnection.collection(collections.users).findOne({_id});
-  await dbConnection.collection(collections.users).deleteOne({_id});
-  debugLog(`${userToDelete ? 'Deleted':'Could not find'} user with id: ${_id}`);
+  const deleted = (await dbConnection.collection(collections.users).deleteOne({_id})).deletedCount;
+  debugLog(`${deleted ? 'Deleted':'Could not find'} user with id: ${_id}`);
 
-  return makeExposedUser(userToDelete);
+  return deleted;
 }
 
 module.exports = {

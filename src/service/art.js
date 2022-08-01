@@ -73,11 +73,10 @@ async function updateById(_id, { title, material, medium, size, image_url, price
 async function deleteById(_id) {
   debugLog(`Deleting art with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const artToDelete = await dbConnection.collection(collections.art).findOne({_id});
-  await dbConnection.collection(collections.art).deleteOne({_id});
-  debugLog(`${artToDelete ? 'Deleted':'Could not find'} art with id: ${_id}`);
+  const deleted = (await dbConnection.collection(collections.art).deleteOne({_id})).deletedCount;
+  debugLog(`${deleted ? 'Deleted':'Could not find'} art with id: ${_id}`);
 
-  return artToDelete;
+  return deleted;
 }
 
 async function getImageByPath(path) {
