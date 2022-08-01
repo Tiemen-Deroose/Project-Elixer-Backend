@@ -1,6 +1,7 @@
 const config = require('config');
 const uuid = require('uuid');
 const data = require('../data');
+const ServiceError = require('../core/serviceError');
 const { hashPassword, verifyPassword } = require('../core/password');
 const collections = data.collections;
 const roles = require('../core/roles');
@@ -26,11 +27,11 @@ const makeLoginData = async (user) => {
 
 async function checkAndParseSession(authHeader) {
   if (!authHeader) {
-    throw new Error('You need to be signed in');
+    throw ServiceError.unauthorized('You need to be signed in');
   }
 
   if (!authHeader.startsWith('Bearer ')) {
-    throw new Error('Invalid authentication token');
+    throw ServiceError.unauthorized('Invalid authentication token');
   }
 
   const authToken = authHeader.substr(7);
@@ -44,7 +45,7 @@ async function checkAndParseSession(authHeader) {
     };
   } catch (error) {
     getChildLogger('users-service').error(error.message, { error });
-    throw new Error(error.message);
+    throw ServiceError.unauthorized(error.message);
   }
 }
 
@@ -52,7 +53,7 @@ function checkRole(role, roles) {
   const hasPermission = roles.includes(role);
 
   if (!hasPermission) {
-    throw new Error('You are not allowed to view this part of the application');
+    throw ServiceError.forbidden('You are not allowed to view this part of the application');
   }
 }
 
@@ -61,12 +62,12 @@ async function login(email, password) {
   const user = await getByEmail(email);
 
   if (!user)
-    throw new Error('The given email and password do not match');
+    throw ServiceError.unauthorized('The given email and password do not match');
 
   const passwordValid = await verifyPassword(password, user.password);
 
   if (!passwordValid)
-    throw new Error('The given email and password do not match');
+    throw ServiceError.unauthorized('The given email and password do not match');
 
   debugLog(`Successfully logged in user with email: ${email}`);
   return await makeLoginData(user);
@@ -83,7 +84,7 @@ async function register({ username, email, password }) {
   };
 
   if (await getByEmail(email)) {
-    throw new Error('The given email is already in use');
+    throw ServiceError.validationFailed('The given email is already in use');
   }
 
   const dbConnection = await data.getConnection();
@@ -112,7 +113,10 @@ async function getById(_id) {
   const dbConnection = await data.getConnection();
   const requestedUser = await dbConnection.collection(collections.users).findOne({_id});
 
-  debugLog(`${requestedUser ? 'Found':'Could not find'} user with id: ${_id}`);
+  if (!requestedUser)
+    throw ServiceError.notFound(`Could not find user with id: ${_id}`);
+    
+  debugLog(`Found user with id: ${_id}`);
   return makeExposedUser(requestedUser);
 }
 
@@ -135,7 +139,11 @@ async function updateById(_id, { username, email, password, roles}) {
 
   debugLog(`Updating user with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  await dbConnection.collection(collections.users).updateOne({_id}, {$set: updatedUser});
+  const found = (await dbConnection.collection(collections.users).updateOne({_id}, {$set: updatedUser}))
+    .modifiedCount;
+  
+  if (!found)
+    throw ServiceError.notFound(`Could not find user with id: ${_id}`);
 
   return { _id, ...makeExposedUser(updatedUser) };
 }
@@ -144,7 +152,11 @@ async function deleteById(_id) {
   debugLog(`Deleting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const deleted = (await dbConnection.collection(collections.users).deleteOne({_id})).deletedCount;
-  debugLog(`${deleted ? 'Deleted':'Could not find'} user with id: ${_id}`);
+  
+  if (!deleted)
+    throw ServiceError.notFound(`Could not find user with id: ${_id}`);
+
+  debugLog(`Deleted user with id: ${_id}`);
 
   return deleted;
 }

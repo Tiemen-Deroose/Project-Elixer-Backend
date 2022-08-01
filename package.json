@@ -19,6 +19,7 @@
     "migrate-mongo": "8.2.3",
     "mongo-seeding": "^3.7.2",
     "mongodb": "^4.2.0",
+    "serialize-error": "^8.1.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },

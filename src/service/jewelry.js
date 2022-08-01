@@ -3,9 +3,11 @@ const uuid = require('uuid');
 const mime = require('mime-types');
 const fs = require('fs');
 const data = require('../data');
+const ServiceError = require('../core/serviceError');
 const collections = data.collections;
 
 const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
+const { jewelry:imageDir } = config.get('directories.images');
 
 const { getChildLogger } = require('../core/logging');
 const debugLog = (message, meta = {}) => {
@@ -31,7 +33,10 @@ async function getById(_id) {
   const dbConnection = await data.getConnection();
   const requestedJewelry = await dbConnection.collection(collections.jewelry).findOne({_id});
 
-  debugLog(`${requestedJewelry ? 'Found':'Could not find'} jewelry with id: ${_id}`);
+  if (!requestedJewelry)
+    throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
+
+  debugLog(`Found jewelry with id: ${_id}`);
   return requestedJewelry;
 }
 
@@ -65,7 +70,11 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
 
   debugLog(`Updating jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  await dbConnection.collection(collections.jewelry).updateOne({_id}, {$set: updatedJewelry});
+  const found = ( await dbConnection.collection(collections.jewelry).updateOne({_id}, {$set: updatedJewelry}))
+    .modifiedCount;
+
+  if (!found)
+    throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
 
   return { _id, ...updatedJewelry };
 }
@@ -74,13 +83,22 @@ async function deleteById(_id) {
   debugLog(`Deleting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const deleted = (await dbConnection.collection(collections.jewelry).deleteOne({_id})).deletedCount;
-  debugLog(`${deleted ? 'Deleted':'Could not find'} jewelry with id: ${_id}`);
+
+  if (!deleted)
+    throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
+
+  debugLog(`Deleted jewelry with id: ${_id}`);
 
   return deleted;
 }
 
-async function getImageByPath(path) {
-  debugLog(`Getting image with path: ${path}`);
+async function getImageByPath(image) {
+  debugLog(`Getting image: ${image}`);
+  const path = `${imageDir}${image}`;
+
+  if (!fs.existsSync(path))
+    throw ServiceError.notFound(`Could not find jewelry image: ${image}`);
+
   var mimeType = mime.lookup(path);
   const src = fs.createReadStream(path);
   

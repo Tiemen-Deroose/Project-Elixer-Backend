@@ -3,6 +3,13 @@ module.exports = {
     silent: false,
   },
 
+  directories: {
+    images: {
+      art: './images/art/',
+      jewelry: './images/jewelry/',
+    },
+  },
+
   cors: {
     origins: ['http://localhost:3000'],
     maxAge: 3 * 60 * 60,

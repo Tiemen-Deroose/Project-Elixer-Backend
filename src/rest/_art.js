@@ -62,7 +62,8 @@ updateArt.validationScheme = {
 };
 
 const deleteArt = async (ctx) => {
-  ctx.status = await artService.deleteById(ctx.params.id) ? 204 : 404;
+  await artService.deleteById(ctx.params.id);
+  ctx.status = 204;
 };
 deleteArt.validationScheme = {
   params: {
@@ -71,7 +72,7 @@ deleteArt.validationScheme = {
 };
 
 const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await artService.getImageByPath(`./images/art/${ctx.params.image}`);
+  const { src, mimeType } = await artService.getImageByPath(ctx.params.image);
 
   ctx.body = src;
   ctx.response.set('content-type', mimeType);

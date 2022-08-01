@@ -1,5 +1,6 @@
 const config = require('config');
 const Joi = require('joi');
+const ServiceError = require('../core/serviceError');
 
 const JOI_OPTIONS = config.get('validation');
 
@@ -67,12 +68,8 @@ const validate = (schema) => {
     const params = validationHelper(schema.params, ctx.params, 'params');
     params && (errors.params = params);
 
-    if (Object.keys(errors).length) {
-      ctx.throw(400, 'Validation failed, check details for more information', {
-        code: 'VALIDATION_FAILED',
-        details: errors,
-      });
-    }
+    if (Object.keys(errors).length)
+      throw ServiceError.validationFailed('Validation failed, check details for more information', errors);
   
     return next();
   };

@@ -62,7 +62,8 @@ updateJewelry.validationScheme = {
 };
 
 const deleteJewelry = async (ctx) => {
-  ctx.status = await jewelryService.deleteById(ctx.params.id) ? 204 : 404;
+  await jewelryService.deleteById(ctx.params.id);
+  ctx.status = 204;
 };
 deleteJewelry.validationScheme = {
   params: {
@@ -71,7 +72,7 @@ deleteJewelry.validationScheme = {
 };
 
 const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await jewelryService.getImageByPath(`./images/jewelry/${ctx.params.image}`);
+  const { src, mimeType } = await jewelryService.getImageByPath(ctx.params.image);
 
   ctx.body = src;
   ctx.response.set('content-type', mimeType);

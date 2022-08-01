@@ -67,7 +67,8 @@ updateUser.validationScheme = {
 };
 
 const deleteUser = async (ctx) => {
-  ctx.status = await userService.deleteById(ctx.params.id) ? 204 : 404;
+  await userService.deleteById(ctx.params.id);
+  ctx.status = 204;
 };
 deleteUser.validationScheme = {
   params: {

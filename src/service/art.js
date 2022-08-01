@@ -3,9 +3,11 @@ const uuid = require('uuid');
 const mime = require('mime-types');
 const fs = require('fs');
 const data = require('../data');
+const ServiceError = require('../core/serviceError');
 const collections = data.collections;
 
 const { limit: DEFAULT_PAGINATION_LIMIT, offset: DEFAULT_PAGINATION_OFFSET } = config.get('pagination');
+const { art:imageDir } = config.get('directories.images');
 
 const { getChildLogger } = require('../core/logging');
 const debugLog = (message, meta = {}) => {
@@ -31,7 +33,10 @@ async function getById(_id) {
   const dbConnection = await data.getConnection();
   const requestedArt = await dbConnection.collection(collections.art).findOne({_id});
 
-  debugLog(`${requestedArt ? 'Found':'Could not find'} art with id: ${_id}`);
+  if (!requestedArt)
+    throw ServiceError.notFound(`Could not find art with id: ${_id}`);
+    
+  debugLog(`Found art with id: ${_id}`);
   return requestedArt;
 }
 
@@ -65,7 +70,11 @@ async function updateById(_id, { title, material, medium, size, image_url, price
 
   debugLog(`Updating art with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  await dbConnection.collection(collections.art).updateOne({_id}, {$set: updatedArt});
+  const found = (await dbConnection.collection(collections.art).updateOne({_id}, {$set: updatedArt}))
+    .modifiedCount;
+
+  if (!found)
+    throw ServiceError.notFound(`Could not find art with id: ${_id}`);
 
   return { _id, ...updatedArt};
 }
@@ -74,13 +83,22 @@ async function deleteById(_id) {
   debugLog(`Deleting art with id: ${_id}`);
   const dbConnection = await data.getConnection();
   const deleted = (await dbConnection.collection(collections.art).deleteOne({_id})).deletedCount;
-  debugLog(`${deleted ? 'Deleted':'Could not find'} art with id: ${_id}`);
+
+  if (!deleted)
+    throw ServiceError.notFound(`Could not find art with id: ${_id}`);
+
+  debugLog(`Deleted art with id: ${_id}`);
 
   return deleted;
 }
 
-async function getImageByPath(path) {
-  debugLog(`Getting image with path: ${path}`);
+async function getImageByPath(image) {
+  debugLog(`Getting image: ${image}`);
+  const path = `${imageDir}${image}`;
+
+  if (!fs.existsSync(path))
+    throw ServiceError.notFound(`Could not find art image: ${image}`);
+
   var mimeType = mime.lookup(path);
   const src = fs.createReadStream(path);
   
