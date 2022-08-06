@@ -26,13 +26,6 @@ const deleteJewelry = async (ctx) => {
   ctx.body = await jewelryService.deleteById(ctx.params.id);
 };
 
-const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await jewelryService.getImageByPath(`./images/jewelry/${ctx.params.image}`);
-
-  ctx.body = src;
-  ctx.response.set('content-type', mimeType);
-};
-
 module.exports = (app) => {
   const router = new Router({
     prefix: '/jewelry',
@@ -43,7 +36,6 @@ module.exports = (app) => {
   router.get('/:id', getJewelryById);
   router.put('/:id', updateJewelry);
   router.delete('/:id', deleteJewelry);
-  router.get('/images/:image', getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

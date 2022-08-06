@@ -1,7 +1,4 @@
 const uuid = require('uuid');
-const mime = require('mime-types');
-const fs = require('fs');
-
 const data = require('../data');
 const collections = data.collections;
 
@@ -104,18 +101,10 @@ async function deleteById(_id) {
   return jewelryToDelete;
 }
 
-async function getImageByPath(path) {
-  var mimeType = mime.lookup(path);
-  const src = fs.createReadStream(path);
-  
-  return { src, mimeType };
-}
-
 module.exports = {
   getAll,
   getById,
   create,
   updateById,
   deleteById,
-  getImageByPath,
 };

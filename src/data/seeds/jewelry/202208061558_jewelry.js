@@ -5,7 +5,7 @@ module.exports = [
     category: 'pendant',
     material: 'steel',
     colour: 'silver',
-    image_url: 'http://localhost:9000/api/jewelry/images/colour_changing_pendant.jpg',
+    image_url: 'http://localhost:3000/images/jewelry/colour_changing_pendant.jpg',
     price: 49.99,
   },
   { 
@@ -14,7 +14,7 @@ module.exports = [
     category: 'bracelet',
     material: 'sterling silver',
     colour: 'silver',
-    image_url: 'http://localhost:9000/api/jewelry/images/skeletonized_petals_bracelet.jpg',
+    image_url: 'http://localhost:3000/images/jewelry/skeletonized_petals_bracelet.jpg',
     price: 39.99,
   },
 ];

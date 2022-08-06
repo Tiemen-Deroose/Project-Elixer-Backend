@@ -26,13 +26,6 @@ const deleteArt = async (ctx) => {
   ctx.body = await artService.deleteById(ctx.params.id);
 };
 
-const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await artService.getImageByPath(`./images/art/${ctx.params.image}`);
-
-  ctx.body = src;
-  ctx.response.set('content-type', mimeType);
-};
-
 module.exports = (app) => {
   const router = new Router({
     prefix: '/art',
@@ -43,7 +36,6 @@ module.exports = (app) => {
   router.get('/:id', getArtById);
   router.put('/:id', updateArt);
   router.delete('/:id', deleteArt);
-  router.get('/images/:image', getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };
