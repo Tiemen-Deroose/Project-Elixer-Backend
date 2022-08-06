@@ -71,18 +71,6 @@ deleteArt.validationScheme = {
   },
 };
 
-const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await artService.getImageByPath(ctx.params.image);
-
-  ctx.body = src;
-  ctx.response.set('content-type', mimeType);
-};
-getImageByPath.validationScheme = {
-  params: {
-    image: Joi.string().max(50).regex(new RegExp('[A-Z]*.(jpg|png)')),
-  },
-};
-
 module.exports = (app) => {
   const router = new Router({
     prefix: '/art',
@@ -93,7 +81,6 @@ module.exports = (app) => {
   router.get('/:id', requireAuthentication, validate(getArtById.validationScheme), getArtById);
   router.put('/:id', requireAuthentication, validate(updateArt.validationScheme), updateArt);
   router.delete('/:id', requireAuthentication, validate(deleteArt.validationScheme), deleteArt);
-  router.get('/images/:image', requireAuthentication, validate(getImageByPath.validationScheme), getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

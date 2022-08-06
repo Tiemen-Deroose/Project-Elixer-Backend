@@ -71,18 +71,6 @@ deleteJewelry.validationScheme = {
   },
 };
 
-const getImageByPath = async (ctx) => {
-  const { src, mimeType } = await jewelryService.getImageByPath(ctx.params.image);
-
-  ctx.body = src;
-  ctx.response.set('content-type', mimeType);
-};
-getImageByPath.validationScheme = {
-  params: {
-    image: Joi.string().max(50).regex(new RegExp('[A-Z]*.(jpg|png)')),
-  },
-};
-
 module.exports = (app) => {
   const router = new Router({
     prefix: '/jewelry',
@@ -93,7 +81,6 @@ module.exports = (app) => {
   router.get('/:id', validate(getJewelryById.validationScheme), requireAuthentication, getJewelryById);
   router.put('/:id', validate(updateJewelry.validationScheme), requireAuthentication, updateJewelry);
   router.delete('/:id', validate(deleteJewelry.validationScheme), requireAuthentication, deleteJewelry);
-  router.get('/images/:image', validate(getImageByPath.validationScheme), requireAuthentication, getImageByPath);
 
   app.use(router.routes()).use(router.allowedMethods());
 };
