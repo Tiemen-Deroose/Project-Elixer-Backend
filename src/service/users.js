@@ -81,6 +81,7 @@ async function register({ username, email, password }) {
     email,
     password: await hashPassword(password),
     roles: [roles.USER],
+    favourites: [],
   };
 
   if (await getByEmail(email)) {
@@ -129,12 +130,13 @@ async function getByEmail(email) {
   return requestedUser;
 }
 
-async function updateById(_id, { username, email, password, roles}) {
+async function updateById(_id, { username, email, password, roles, favourites}) {
   const updatedUser = {
     username,
     email,
     password: await hashPassword(password),
-    roles: roles,
+    roles,
+    favourites,
   };
 
   debugLog(`Updating user with id: ${_id}`);
@@ -146,6 +148,30 @@ async function updateById(_id, { username, email, password, roles}) {
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
 
   return { _id, ...makeExposedUser(updatedUser) };
+}
+
+async function addFavourite(userId, { itemId }) {
+  debugLog(`Adding favourite '${itemId}' to user: ${userId}`);
+  const dbConnection = await data.getConnection();
+  const found = (await dbConnection.collection(collections.users).updateOne(
+    {_id: userId}, 
+    {$push: { favourites: itemId }},
+  )).modifiedCount;
+
+  if (!found)
+    throw ServiceError.notFound(`Could not find user with id: ${userId}`);
+}
+
+async function removeFavourite(userId, { itemId }) {
+  debugLog(`Removing favourite '${itemId}' from user: ${userId}`);
+  const dbConnection = await data.getConnection();
+  const found = (await dbConnection.collection(collections.users).updateOne(
+    {_id: userId}, 
+    {$pull: { favourites: itemId }},
+  )).modifiedCount;
+
+  if (!found)
+    throw ServiceError.notFound(`Could not find user with id: ${userId}`);
 }
 
 async function deleteById(_id) {
@@ -170,5 +196,7 @@ module.exports = {
   getById,
   getByEmail,
   updateById,
+  addFavourite,
+  removeFavourite,
   deleteById,
 };

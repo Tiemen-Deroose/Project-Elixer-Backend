@@ -58,11 +58,39 @@ const updateUser = async (ctx) => {
   });
 };
 updateUser.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
   body: {
     username: Joi.string().max(50),
     email: Joi.string().email(),
     password: Joi.string().max(255),
     roles: Joi.array().items(Joi.string().valid(role.ADMIN, role.USER)),
+    favourites: Joi.array().items(Joi.string()),
+  },
+};
+
+const addFavourite = async (ctx) => {
+  ctx.body = await userService.addFavourite(ctx.params.id, {...ctx.request.body});
+};
+addFavourite.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    itemId: Joi.string().uuid(),
+  },
+};
+
+const removeFavourite = async (ctx) => {
+  ctx.body = await userService.removeFavourite(ctx.params.id, {...ctx.request.body});
+};
+removeFavourite.validationScheme = {
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    itemId: Joi.string().uuid(),
   },
 };
 
@@ -89,6 +117,8 @@ module.exports = (app) => {
   router.get('/', validate(getAllUsers.validationScheme), requireAuthentication, requireAdmin, getAllUsers);
   router.get('/:id', validate(getUserById.validationScheme), requireAuthentication, getUserById);
   router.put('/:id', validate(updateUser.validationScheme), requireAuthentication, updateUser);
+  router.put('/favourite/:id', validate(addFavourite.validationScheme), requireAuthentication, addFavourite);
+  router.delete('/favourite/:id', validate(removeFavourite.validationScheme), requireAuthentication, removeFavourite);
   router.delete('/:id', validate(deleteUser.validationScheme), requireAuthentication, deleteUser);
 
   app.use(router.routes()).use(router.allowedMethods());
