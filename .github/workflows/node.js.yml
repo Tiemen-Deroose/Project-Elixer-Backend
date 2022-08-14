@@ -15,10 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
+      DATABASE_NAME: 
+      DATABASE_CLIENT: mongodb+srv
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_PORT: 
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     strategy:
