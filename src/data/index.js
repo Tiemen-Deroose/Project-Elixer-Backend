@@ -20,19 +20,28 @@ const DATABASE_PASSWORD = config.get('database.password');
 const DATABASE_HOST = config.get('database.host');
 const DATABASE_PORT = config.get('database.port');
 const DATABASE_NAME = config.get('database.name');
-const DATABASE_URL = `${DATABASE_CLIENT}://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}${DATABASE_PORT != '' ? `:${DATABASE_PORT}` : ''}${DATABASE_NAME != '' ? `/${DATABASE_NAME}` : ''}/?retryWrites=true&w=majority`;
+
 const MIGRATION_CONFIG = config.get('mongodb.migration');
 const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('mongodb.seeding');
 
 let client;
 let database;
+let databaseUrl;
+
+if (DATABASE_HOST === 'localhost') {
+  databaseUrl =
+    `${DATABASE_CLIENT}://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
+} else {
+  databaseUrl =
+    `${DATABASE_CLIENT}://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}/?retryWrites=true&w=majority`;
+}
 
 async function initializeData() {
   logger = getChildLogger('data');
   logger.info('Testing connection to the database');
 
   // Test connection, also creates the database
-  client = await MongoClient.connect(DATABASE_URL);
+  client = await MongoClient.connect(databaseUrl);
   if (!client) {
     logger.error('Could not connect to the database');
     throw MongoNotConnectedError;
@@ -42,7 +51,7 @@ async function initializeData() {
   let migrationsFailed = true;
   migrationConfig.set({
     mongodb: {
-      url: DATABASE_URL,
+      url: databaseUrl,
       options: MIGRATION_CONFIG.options,
     },
     migrationsDir: MIGRATION_CONFIG.migrationsDir,
@@ -73,7 +82,7 @@ async function initializeData() {
     logger.info('Seeding the database');
 
     try {
-      const seeder = new Seeder({ database: DATABASE_URL, dropDatabase: SEEDING_DROPDATABASE });
+      const seeder = new Seeder({ database: databaseUrl, dropDatabase: SEEDING_DROPDATABASE });
       const collections = seeder.readCollectionsFromPath(path.resolve(SEEDING_PATH));
       await seeder.import(collections);
     } catch (err) {
@@ -93,7 +102,7 @@ async function shutdownData() {
 
 async function connect() {
 
-  client = await MongoClient.connect(DATABASE_URL).client;
+  client = await MongoClient.connect(databaseUrl).client;
   database = database.db(DATABASE_NAME);
 
   if (!database) { // if we didn't get a connection, throw an error
