@@ -44,7 +44,6 @@ async function checkAndParseSession(authHeader) {
       authToken,
     };
   } catch (error) {
-    getChildLogger('users-service').error(error.message, { error });
     throw ServiceError.unauthorized(error.message);
   }
 }
