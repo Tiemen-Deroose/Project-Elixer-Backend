@@ -4,6 +4,7 @@
     "lint": "eslint . --fix",
     "test": "npx env-cmd -f .env.test jest",
     "test:coverage": "yarn test --coverage",
+    "test:ci": "jest",
     "migrate:create": "migrate-mongo create -f config/migrate-mongo-config.js"
   },
   "dependencies": {
