@@ -1,0 +1,41 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+			DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+			DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+			DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+			DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+			JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+    - uses: actions/cache@v2
+			with:
+				path: '**/node_modules'
+			  key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+    - run: yarn install --frozen-lockfile
+    - run: yarn run test:ci
