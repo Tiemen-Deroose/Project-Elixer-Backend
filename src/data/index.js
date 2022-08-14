@@ -15,10 +15,12 @@ let logger;
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
 const DATABASE_CLIENT = config.get('database.client');
+const DATABASE_USERNAME = config.get('database.username');
+const DATABASE_PASSWORD = config.get('database.password');
 const DATABASE_HOST = config.get('database.host');
 const DATABASE_PORT = config.get('database.port');
 const DATABASE_NAME = config.get('database.name');
-const DATABASE_URL = `${DATABASE_CLIENT}://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
+const DATABASE_URL = `${DATABASE_CLIENT}://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}${DATABASE_PORT != '' ? `:${DATABASE_PORT}` : ''}${DATABASE_NAME != '' ? `/${DATABASE_NAME}` : ''}/?retryWrites=true&w=majority`;
 const MIGRATION_CONFIG = config.get('mongodb.migration');
 const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('mongodb.seeding');
 
