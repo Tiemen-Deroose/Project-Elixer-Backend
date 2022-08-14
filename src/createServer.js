@@ -21,7 +21,7 @@ const NODE_ENV = config.get('env');
 
 const isDevelopment = NODE_ENV === 'development';
 
-module.exports = async function createServer () {
+module.exports = async function createServer() {
 
   initializeLogger();
 
@@ -77,7 +77,7 @@ module.exports = async function createServer () {
       let statusCode = error.status || 500;
       let errorBody = {
         code: error.code || 'INTERNAL_SERVER_ERROR',
-        message : error.message,
+        message: error.message,
         details: error.details,
         stack: isDevelopment ? error.stack : undefined,
       };
@@ -97,11 +97,11 @@ module.exports = async function createServer () {
   installRest(app);
 
   return {
-    getApp(){
+    getApp() {
       return app;
     },
 
-    start(){
+    start() {
       return new Promise((resolve) => {
         app.listen(9000);
         logger.info('🚀 Server listening on http://localhost:9000');
@@ -109,7 +109,7 @@ module.exports = async function createServer () {
       });
     },
 
-    async stop(){
+    async stop() {
       {
         app.removeAllListeners();
         await shutdownData();

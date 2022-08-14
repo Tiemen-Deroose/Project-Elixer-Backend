@@ -3,7 +3,7 @@ module.exports = {
     level: 'error',
     silent: true,
   },
-  
+
   mongodb: {
     database_name: 'elixer_test',
   },

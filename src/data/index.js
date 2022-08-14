@@ -14,13 +14,12 @@ let logger;
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
-
-const DATABASE_URL = config.get('mongodb.database_url');
-const DATABASE_NAME = config.get('mongodb.database_name');
-const DATABASE_CONNECTIONSTRING = `${DATABASE_URL}${DATABASE_NAME}`;
-
+const DATABASE_CLIENT = config.get('database.client');
+const DATABASE_HOST = config.get('database.host');
+const DATABASE_PORT = config.get('database.port');
+const DATABASE_NAME = config.get('database.name');
+const DATABASE_URL = `${DATABASE_CLIENT}://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
 const MIGRATION_CONFIG = config.get('mongodb.migration');
-
 const { path: SEEDING_PATH, dropDatabase: SEEDING_DROPDATABASE } = config.get('mongodb.seeding');
 
 let client;
@@ -31,7 +30,7 @@ async function initializeData() {
   logger.info('Testing connection to the database');
 
   // Test connection, also creates the database
-  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING);
+  client = await MongoClient.connect(DATABASE_URL);
   if (!client) {
     logger.error('Could not connect to the database');
     throw MongoNotConnectedError;
@@ -39,7 +38,15 @@ async function initializeData() {
   database = client?.db(DATABASE_NAME);
 
   let migrationsFailed = true;
-  migrationConfig.set(MIGRATION_CONFIG);
+  migrationConfig.set({
+    mongodb: {
+      url: DATABASE_URL,
+      options: MIGRATION_CONFIG.options,
+    },
+    migrationsDir: MIGRATION_CONFIG.migrationsDir,
+    changelogCollectionName: MIGRATION_CONFIG.changelogCollectionName,
+    migrationFileExtension: MIGRATION_CONFIG.migrationFileExtension,
+  });
 
   try {
     logger.info('Migrating the database');
@@ -64,7 +71,7 @@ async function initializeData() {
     logger.info('Seeding the database');
 
     try {
-      const seeder = new Seeder({database: DATABASE_CONNECTIONSTRING, dropDatabase: SEEDING_DROPDATABASE});
+      const seeder = new Seeder({ database: DATABASE_URL, dropDatabase: SEEDING_DROPDATABASE });
       const collections = seeder.readCollectionsFromPath(path.resolve(SEEDING_PATH));
       await seeder.import(collections);
     } catch (err) {
@@ -84,7 +91,7 @@ async function shutdownData() {
 
 async function connect() {
 
-  client = await MongoClient.connect(DATABASE_CONNECTIONSTRING).client;
+  client = await MongoClient.connect(DATABASE_URL).client;
   database = database.db(DATABASE_NAME);
 
   if (!database) { // if we didn't get a connection, throw an error

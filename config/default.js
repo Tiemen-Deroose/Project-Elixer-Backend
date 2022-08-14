@@ -27,25 +27,27 @@ module.exports = {
     convert: true,
     presence: 'required',
   },
-  
+
+  database: {
+    client: 'mongodb',
+    host: 'localhost',
+    port: '27017',
+    name: 'elixer',
+    username: 'root',
+    password: '',
+  },
+
   mongodb: {
-    database_name: 'elixer',
-    database_url: 'mongodb://localhost:27017/',
-  
     migration: {
-      mongodb: {
-        url: 'mongodb://localhost:27017/',
-        options: { useNewUrlParser: true },
-      },
-  
+      options: { useNewUrlParser: true },
       migrationsDir: 'src/data/migrations',
       changelogCollectionName: 'changelog',
       migrationFileExtension: '.js',
     },
-  
+
     seeding: {},
   },
-  
+
   auth: {
     argon: {
       saltLength: 16,
@@ -54,7 +56,7 @@ module.exports = {
       memoryCost: 2 ** 17,
     },
     jwt: {
-      secret: 'h9VAbGyVikC2eGUFF8OI1twkkxbKAXA1iN86oBmQi6QMyPOXr3RgiNY6ZmZWqUTOHdTvBn6PRPVHM2SdWQyxRSRpwYg6wjvlq7XkVi6fQ7rhWjNQ7rv4IC3SMHpFtrXYngnwkGWx1Af2',
+      secret: '',
       expirationInterval: 60 * 60 * 1000,
       issuer: 'elixer.hogent.be',
       audience: 'elixer.hogent.be',

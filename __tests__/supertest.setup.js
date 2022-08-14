@@ -12,7 +12,7 @@ module.exports.withServer = (setter) => {
       db: await getConnection(),
     });
   });
-  
+
   afterAll(async () => {
     await server.stop();
   });
@@ -24,7 +24,7 @@ module.exports.loginUser = async (supertest) => {
       email: 'test.user@domain.com',
       password: '123',
     });
-  
+
   if (response.statusCode != 200)
     throw new Error(response.body.message || 'Unknown error occurred');
 
@@ -37,9 +37,9 @@ module.exports.loginAdmin = async (supertest) => {
       email: 'test.admin@domain.com',
       password: '123',
     });
-    
+
   if (response.statusCode != 200)
     throw new Error(response.body.message || 'Unknown error occurred');
-  
+
   return `Bearer ${response.body.token}`;
 };

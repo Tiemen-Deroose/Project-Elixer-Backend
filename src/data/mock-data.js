@@ -18,9 +18,9 @@ const ART_DATA = [
     price: 59.99,
   },
 ];
-  
+
 const JEWELRY_DATA = [
-  { 
+  {
     _id: 'ee402224-b772-4536-a378-40268b46562e',
     name: 'Colour Changing Pendant',
     category: 'pendant',
@@ -29,7 +29,7 @@ const JEWELRY_DATA = [
     image_url: 'http://localhost:9000/api/jewelry/images/colour_changing_pendant.jpg',
     price: 49.99,
   },
-  { 
+  {
     _id: '111b85dc-e7e4-473a-9952-06183f5f97cc',
     name: 'Skeletonized Petals bracelet',
     category: 'bracelet',
@@ -40,4 +40,4 @@ const JEWELRY_DATA = [
   },
 ];
 
-module.exports = {ART_DATA, JEWELRY_DATA};
+module.exports = { ART_DATA, JEWELRY_DATA };

@@ -71,7 +71,7 @@ updateUser.validationScheme = {
 };
 
 const addFavourite = async (ctx) => {
-  ctx.body = await userService.addFavourite(ctx.params.id, {...ctx.request.body});
+  ctx.body = await userService.addFavourite(ctx.params.id, { ...ctx.request.body });
 };
 addFavourite.validationScheme = {
   params: {
@@ -83,7 +83,7 @@ addFavourite.validationScheme = {
 };
 
 const removeFavourite = async (ctx) => {
-  ctx.body = await userService.removeFavourite(ctx.params.id, {...ctx.request.body});
+  ctx.body = await userService.removeFavourite(ctx.params.id, { ...ctx.request.body });
 };
 removeFavourite.validationScheme = {
   params: {

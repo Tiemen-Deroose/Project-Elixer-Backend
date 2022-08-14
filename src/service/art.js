@@ -28,11 +28,11 @@ async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINAT
 async function getById(_id) {
   debugLog(`Getting art with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const requestedArt = await dbConnection.collection(collections.art).findOne({_id});
+  const requestedArt = await dbConnection.collection(collections.art).findOne({ _id });
 
   if (!requestedArt)
     throw ServiceError.notFound(`Could not find art with id: ${_id}`);
-    
+
   debugLog(`Found art with id: ${_id}`);
   return requestedArt;
 }
@@ -67,19 +67,19 @@ async function updateById(_id, { title, material, medium, size, image_url, price
 
   debugLog(`Updating art with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const found = (await dbConnection.collection(collections.art).updateOne({_id}, {$set: updatedArt}))
+  const found = (await dbConnection.collection(collections.art).updateOne({ _id }, { $set: updatedArt }))
     .modifiedCount;
 
   if (!found)
     throw ServiceError.notFound(`Could not find art with id: ${_id}`);
 
-  return { _id, ...updatedArt};
+  return { _id, ...updatedArt };
 }
 
 async function deleteById(_id) {
   debugLog(`Deleting art with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const deleted = (await dbConnection.collection(collections.art).deleteOne({_id})).deletedCount;
+  const deleted = (await dbConnection.collection(collections.art).deleteOne({ _id })).deletedCount;
 
   if (!deleted)
     throw ServiceError.notFound(`Could not find art with id: ${_id}`);

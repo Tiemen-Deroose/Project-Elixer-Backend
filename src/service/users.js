@@ -15,7 +15,7 @@ const debugLog = (message, meta = {}) => {
   this.logger.debug(message, meta);
 };
 
-const makeExposedUser = ({ password, ...user}) => user; // eslint-disable-line no-unused-vars
+const makeExposedUser = ({ password, ...user }) => user; // eslint-disable-line no-unused-vars
 
 const makeLoginData = async (user) => {
   const token = await generateJWT(user);
@@ -112,11 +112,11 @@ async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINAT
 async function getById(_id) {
   debugLog(`Getting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const requestedUser = await dbConnection.collection(collections.users).findOne({_id});
+  const requestedUser = await dbConnection.collection(collections.users).findOne({ _id });
 
   if (!requestedUser)
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
-    
+
   debugLog(`Found user with id: ${_id}`);
   return makeExposedUser(requestedUser);
 }
@@ -124,13 +124,13 @@ async function getById(_id) {
 async function getByEmail(email) {
   debugLog(`Getting user with email: ${email}`);
   const dbConnection = await data.getConnection();
-  const requestedUser = await dbConnection.collection(collections.users).findOne({'email': email});
+  const requestedUser = await dbConnection.collection(collections.users).findOne({ 'email': email });
 
-  debugLog(`${requestedUser ? 'Found':'Could not find'} user with email: ${email}`);
+  debugLog(`${requestedUser ? 'Found' : 'Could not find'} user with email: ${email}`);
   return requestedUser;
 }
 
-async function updateById(_id, { username, email, password, roles, favourites}) {
+async function updateById(_id, { username, email, password, roles, favourites }) {
   const updatedUser = {
     username,
     email,
@@ -141,9 +141,9 @@ async function updateById(_id, { username, email, password, roles, favourites}) 
 
   debugLog(`Updating user with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const found = (await dbConnection.collection(collections.users).updateOne({_id}, {$set: updatedUser}))
+  const found = (await dbConnection.collection(collections.users).updateOne({ _id }, { $set: updatedUser }))
     .modifiedCount;
-  
+
   if (!found)
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
 
@@ -154,8 +154,8 @@ async function addFavourite(userId, { itemId }) {
   debugLog(`Adding favourite '${itemId}' to user: ${userId}`);
   const dbConnection = await data.getConnection();
   const found = (await dbConnection.collection(collections.users).updateOne(
-    {_id: userId}, 
-    {$push: { favourites: itemId }},
+    { _id: userId },
+    { $push: { favourites: itemId } },
   )).modifiedCount;
 
   if (!found)
@@ -166,8 +166,8 @@ async function removeFavourite(userId, { itemId }) {
   debugLog(`Removing favourite '${itemId}' from user: ${userId}`);
   const dbConnection = await data.getConnection();
   const found = (await dbConnection.collection(collections.users).updateOne(
-    {_id: userId}, 
-    {$pull: { favourites: itemId }},
+    { _id: userId },
+    { $pull: { favourites: itemId } },
   )).modifiedCount;
 
   if (!found)
@@ -177,8 +177,8 @@ async function removeFavourite(userId, { itemId }) {
 async function deleteById(_id) {
   debugLog(`Deleting user with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const deleted = (await dbConnection.collection(collections.users).deleteOne({_id})).deletedCount;
-  
+  const deleted = (await dbConnection.collection(collections.users).deleteOne({ _id })).deletedCount;
+
   if (!deleted)
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
 

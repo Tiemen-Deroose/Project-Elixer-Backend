@@ -28,7 +28,7 @@ async function getAll(limit = DEFAULT_PAGINATION_LIMIT, offset = DEFAULT_PAGINAT
 async function getById(_id) {
   debugLog(`Getting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const requestedJewelry = await dbConnection.collection(collections.jewelry).findOne({_id});
+  const requestedJewelry = await dbConnection.collection(collections.jewelry).findOne({ _id });
 
   if (!requestedJewelry)
     throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
@@ -67,7 +67,7 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
 
   debugLog(`Updating jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const found = ( await dbConnection.collection(collections.jewelry).updateOne({_id}, {$set: updatedJewelry}))
+  const found = (await dbConnection.collection(collections.jewelry).updateOne({ _id }, { $set: updatedJewelry }))
     .modifiedCount;
 
   if (!found)
@@ -79,7 +79,7 @@ async function updateById(_id, { name, category, material, colour, image_url, pr
 async function deleteById(_id) {
   debugLog(`Deleting jewelry with id: ${_id}`);
   const dbConnection = await data.getConnection();
-  const deleted = (await dbConnection.collection(collections.jewelry).deleteOne({_id})).deletedCount;
+  const deleted = (await dbConnection.collection(collections.jewelry).deleteOne({ _id })).deletedCount;
 
   if (!deleted)
     throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
