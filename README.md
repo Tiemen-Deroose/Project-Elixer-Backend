@@ -6,13 +6,13 @@ This is the RESTful node.js API for my elixer project, which communicates with a
 
 ### `Online`
 
-If you would like to simply do API calls on the online hosted server, you can simply do this by sending them to https://td-elixer-api.herokuapp.com/api
+If you would like to simply do API calls on the online hosted server, you can do this by sending them to https://td-elixer-api.herokuapp.com/api
 
 ### `Local`
 
 ### MongoDB
 
-If you would like to run this API locally, you'll need a mongoDB server running locally (this project was made using mongoDB Community Server 5.0, but higher versions may work just fine)
+If you would like to run this API locally, you'll need a local mongoDB server (this project was made using mongoDB Community Server 5.0, but higher versions may work just fine)
 
 ### Environment configuration
 
@@ -32,7 +32,7 @@ DATABASE_USERNAME="root"
 DATABASE_PASSWORD=""
 ```
 
-If you would like to run the tests, simply create a `.env.test` file in the same location with the same configuration, but make sure to redefine the following variables;
+If you would like to run the tests, create a `.env.test` file in the same location with the same configuration, but make sure to redefine the following variables;
 ```
 NODE_ENV="test"
 DATABASE_NAME="elixer_test"
@@ -56,33 +56,33 @@ Get By Id:
 
 Create:
 - POST request on `/art /jewelry` 
-- Art Body: { title, material, medium, size, image_url, price }
-- Jewelry Body: { name, category, material, colour, image_url, price }
+- Art Body: `{ title, material, medium, size, image_url, price }`
+- Jewelry Body: `{ name, category, material, colour, image_url, price }`
 
 Update:
 - PUT request on `/art/{id} /jewelry/{id} /users/{id}`  
-- Art Body: { title, material, medium, size, image_url, price }
-- Jewelry Body: { name, category, material, colour, image_url, price }
-- User Body: { username, email, password, roles, favourites }
+- Art Body: `{ title, material, medium, size, image_url, price }`
+- Jewelry Body: `{ name, category, material, colour, image_url, price }`
+- User Body: `{ username, email, password, roles, favourites }`
 
 Delete:
 - DELETE request on `/art/{id} /jewelry/{id} /users/{id}`  
 
 Login:
 - POST request on `/users/login`  
-- Body: { email, password }
+- Body: `{ email, password }`
 
 Register:
 - POST request on `/users/register`
-- Body: { username, email, password }
+- Body: `{ username, email, password }`
 
 Add Favourite:
 - PUT request on `/users/favourite/{id}`  
-- Body: { itemId }
+- Body: `{ itemId }`
 
 Remove Favourite:
 - DELETE request on `/users/favourite/{id}`  
-- Body: { itemId }
+- Body: `{ itemId }`
 
 ## Known issues
 
