@@ -1,5 +1,5 @@
 const { collections } = require('../../src/data');
-const { withServer, loginUser } = require('../supertest.setup');
+const { withServer, loginAdmin } = require('../supertest.setup');
 
 const dataNoId = ({ _id, ...object }) => object; // eslint-disable-line no-unused-vars
 
@@ -33,7 +33,7 @@ describe('Art', () => {
   });
 
   beforeAll(async () => {
-    loginHeader = await loginUser(request);
+    loginHeader = await loginAdmin(request);
   });
 
   const url = '/api/art';
