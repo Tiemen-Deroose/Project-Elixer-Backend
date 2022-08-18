@@ -48,7 +48,6 @@ module.exports = async function createServer() {
   app.use(bodyParser());
 
   app.use(async (ctx, next) => {
-    const logger = getLogger();
     logger.debug(`${ctx.method} request: ${ctx.url}`);
     try {
       await next();
