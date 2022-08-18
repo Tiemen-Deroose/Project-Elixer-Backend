@@ -66,7 +66,7 @@ updateUser.validationScheme = {
     email: Joi.string().email(),
     password: Joi.string().max(255),
     roles: Joi.array().items(Joi.string().valid(role.ADMIN, role.USER)),
-    favourites: Joi.array().items(Joi.string()),
+    favourites: Joi.array().items(Joi.string().uuid()),
   },
 };
 
