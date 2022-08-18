@@ -1,12 +1,12 @@
 const config = require('config');
 const jwt = require('jsonwebtoken');
-const { getLogger: logger } = require('./logging');
+const ServiceError = require('./serviceError');
 
-const { 
-  audience: JWT_AUDIENCE, 
-  issuer : JWT_ISSUER, 
-  secret : JWT_SECRET,
-  expirationInterval : JWT_EXPIRATION_INTERVAL,
+const {
+  audience: JWT_AUDIENCE,
+  issuer: JWT_ISSUER,
+  secret: JWT_SECRET,
+  expirationInterval: JWT_EXPIRATION_INTERVAL,
 } = config.get('auth.jwt');
 
 module.exports.generateJWT = (user) => {
@@ -23,13 +23,13 @@ module.exports.generateJWT = (user) => {
   };
 
   return new Promise((resolve, reject) => {
-    jwt.sign(tokenData, JWT_SECRET, signOptions, (err, token) => {
-      if (err) {
-        logger.error('Error while signing new token', { error: err?.message });
-        return reject(err);
-      }
-      return resolve(token);
-    });
+    jwt.sign(
+      tokenData, JWT_SECRET, signOptions, (err, token) => {
+        if (err)
+          return reject(err);
+        return resolve(token);
+      },
+    );
   });
 };
 
@@ -40,13 +40,13 @@ module.exports.verifyJWT = (authToken) => {
     subject: 'auth',
   };
 
-  return new Promise((resolve) => {
-    jwt.verify(authToken, JWT_SECRET, verifyOptions, (err, decodedToken) => {
-      if (err || !decodedToken) {
-        logger.error('Error while verifying token', { error: err?.message });
-      }
-
-      return resolve(decodedToken);
-    });
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      authToken, JWT_SECRET, verifyOptions, (err, decodedToken) => {
+        if (err || !decodedToken)
+          return reject(err || ServiceError.unauthorized('Token could not be parsed'));
+        return resolve(decodedToken);
+      },
+    );
   });
 };
