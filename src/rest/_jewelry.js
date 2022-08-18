@@ -2,7 +2,8 @@ const Joi = require('joi');
 const Router = require('@koa/router');
 const validate = require('./_validation');
 const jewelryService = require('../service/jewelry');
-const { requireAuthentication } = require('../core/auth');
+const { requireAuthentication, makeRequireRole } = require('../core/auth');
+const role = require('../core/roles');
 
 const getAllJewelry = async (ctx) => {
   const limit = ctx.query.limit && Number(ctx.query.limit);
@@ -76,11 +77,13 @@ module.exports = (app) => {
     prefix: '/jewelry',
   });
 
+  const requireAdmin = makeRequireRole(role.ADMIN);
+
   router.get('/', validate(getAllJewelry.validationScheme), requireAuthentication, getAllJewelry);
-  router.post('/', validate(createJewelry.validationScheme), requireAuthentication, createJewelry);
+  router.post('/', validate(createJewelry.validationScheme), requireAuthentication, requireAdmin, createJewelry);
   router.get('/:id', validate(getJewelryById.validationScheme), requireAuthentication, getJewelryById);
-  router.put('/:id', validate(updateJewelry.validationScheme), requireAuthentication, updateJewelry);
-  router.delete('/:id', validate(deleteJewelry.validationScheme), requireAuthentication, deleteJewelry);
+  router.put('/:id', validate(updateJewelry.validationScheme), requireAuthentication, requireAdmin, updateJewelry);
+  router.delete('/:id', validate(deleteJewelry.validationScheme), requireAuthentication, requireAdmin, deleteJewelry);
 
   app.use(router.routes()).use(router.allowedMethods());
 };
