@@ -9,7 +9,7 @@ const art_data = [{
   material: 'canvas',
   medium: 'resin',
   size: 'large',
-  image_url: 'http://localhost:9000/api/art/images/sunlight.jpg',
+  image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/art/sunlight.jpg',
   price: 209.99,
 },
 {
@@ -18,7 +18,7 @@ const art_data = [{
   material: 'canvas',
   medium: 'acrylic paint',
   size: 'medium',
-  image_url: 'http://localhost:9000/api/art/images/autumn_tree.jpg',
+  image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/art/autumn_tree.jpg',
   price: 59.99,
 }];
 

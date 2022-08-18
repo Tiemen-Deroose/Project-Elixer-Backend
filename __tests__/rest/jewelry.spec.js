@@ -9,7 +9,7 @@ const jewelry_data = [{
   category: 'pendant',
   material: 'steel',
   colour: 'silver',
-  image_url: 'http://localhost:9000/api/jewelry/images/colour_changing_pendant.jpg',
+  image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/jewelry/colour_changing_pendant.jpg',
   price: 49.99,
 },
 { 
@@ -18,7 +18,7 @@ const jewelry_data = [{
   category: 'bracelet',
   material: 'sterling silver',
   colour: 'silver',
-  image_url: 'http://localhost:9000/api/jewelry/images/skeletonized_petals_bracelet.jpg',
+  image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/jewelry/skeletonized_petals_bracelet.jpg',
   price: 39.99,
 }];
 
