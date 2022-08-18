@@ -5,7 +5,7 @@ module.exports = [
     material: 'canvas',
     medium: 'resin',
     size: 'large',
-    image_url: 'http://localhost:3000/images/art/sunlight.jpg',
+    image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/art/sunlight.jpg',
     price: 209.99,
   },
   {
@@ -14,7 +14,7 @@ module.exports = [
     material: 'canvas',
     medium: 'acrylic paint',
     size: 'medium',
-    image_url: 'http://localhost:3000/images/art/autumn_tree.jpg',
+    image_url: 'http://localhost:3000/frontendweb-thomas-2122-tiemenderoose/images/art/autumn_tree.jpg',
     price: 59.99,
   },
 ];
