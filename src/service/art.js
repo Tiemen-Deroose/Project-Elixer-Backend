@@ -32,8 +32,7 @@ async function getById(_id) {
 
   if (!requestedArt)
     throw ServiceError.notFound(`Could not find art with id: ${_id}`);
-
-  debugLog(`Found art with id: ${_id}`);
+  
   return requestedArt;
 }
 
@@ -83,8 +82,6 @@ async function deleteById(_id) {
 
   if (!deleted)
     throw ServiceError.notFound(`Could not find art with id: ${_id}`);
-
-  debugLog(`Deleted art with id: ${_id}`);
 
   return deleted;
 }

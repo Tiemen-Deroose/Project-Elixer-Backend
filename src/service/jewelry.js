@@ -33,7 +33,6 @@ async function getById(_id) {
   if (!requestedJewelry)
     throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
 
-  debugLog(`Found jewelry with id: ${_id}`);
   return requestedJewelry;
 }
 
@@ -83,8 +82,6 @@ async function deleteById(_id) {
 
   if (!deleted)
     throw ServiceError.notFound(`Could not find jewelry with id: ${_id}`);
-
-  debugLog(`Deleted jewelry with id: ${_id}`);
 
   return deleted;
 }

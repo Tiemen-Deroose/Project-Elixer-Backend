@@ -68,7 +68,6 @@ async function login(email, password) {
   if (!passwordValid)
     throw ServiceError.unauthorized('The given email and password do not match');
 
-  debugLog(`Successfully logged in user with email: ${email}`);
   return await makeLoginData(user);
 }
 
@@ -90,7 +89,6 @@ async function register({ username, email, password }) {
   const dbConnection = await data.getConnection();
   await dbConnection.collection(collections.users).insertOne(createdUser);
 
-  debugLog(`Succesfully registered new user with email: ${email}`);
   return await makeLoginData(createdUser);
 }
 
@@ -116,7 +114,6 @@ async function getById(_id) {
   if (!requestedUser)
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
 
-  debugLog(`Found user with id: ${_id}`);
   return makeExposedUser(requestedUser);
 }
 
@@ -130,6 +127,7 @@ async function getByEmail(email) {
 }
 
 async function updateById(_id, { username, email, password, roles, favourites }) {
+  debugLog(`Updating user with id: ${_id}`);
   const updatedUser = {
     username,
     email,
@@ -137,8 +135,7 @@ async function updateById(_id, { username, email, password, roles, favourites })
     roles,
     favourites,
   };
-
-  debugLog(`Updating user with id: ${_id}`);
+  
   const dbConnection = await data.getConnection();
   const found = (await dbConnection.collection(collections.users).updateOne({ _id }, { $set: updatedUser }))
     .modifiedCount;
@@ -180,8 +177,6 @@ async function deleteById(_id) {
 
   if (!deleted)
     throw ServiceError.notFound(`Could not find user with id: ${_id}`);
-
-  debugLog(`Deleted user with id: ${_id}`);
 
   return deleted;
 }
